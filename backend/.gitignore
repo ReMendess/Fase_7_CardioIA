@@ -1,0 +1,31 @@
+# CardioIA - Fase 7 - backend central
+# ---------------------------------------------------------------------------
+# Nao versionar segredos. O ".env" e local; o ".env.example" tem apenas nomes.
+# ---------------------------------------------------------------------------
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Segredos (nunca versionar)
+.env
+.env.*
+!.env.example
+*.key
+
+# Banco local (SQLite) - item 2 da Etapa C
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Testes e logs
+.pytest_cache/
+.coverage
+htmlcov/
+*.log

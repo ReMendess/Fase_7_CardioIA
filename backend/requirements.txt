@@ -1,0 +1,36 @@
+# CardioIA - Fase 7 - backend central
+# ---------------------------------------------------------------------------
+# Versoes verificadas neste ambiente (Python 3.13.5).
+# Nenhuma dependencia nova foi introduzida: todas ja estavam instaladas.
+# ---------------------------------------------------------------------------
+
+# --- Item 1 da Etapa C (esqueleto + contratos + /health) -------------------
+fastapi==0.119.0
+uvicorn==0.37.0
+pydantic==2.14.1
+pydantic-settings==2.14.1
+python-dotenv==1.2.2
+
+# --- Item 2 da Etapa C (persistencia) -------------------------------------
+sqlalchemy==2.0.49
+
+# --- Item 3 da Etapa C (autenticacao) -------------------------------------
+PyJWT==2.13.0
+bcrypt==5.0.0
+
+# --- Item 6 da Etapa C (cliente HTTP do servico de visao) -----------------
+# Ja estava instalado como dependencia de teste (TestClient); passou a ser usado
+# tambem em producao pelo adapter da Fase 4.
+httpx==0.28.1
+
+# --- Testes ---------------------------------------------------------------
+pytest==9.1.1
+
+# ---------------------------------------------------------------------------
+# A LIBERAR nos itens seguintes da Etapa C (ja instaladas, ainda nao usadas)
+# ---------------------------------------------------------------------------
+#
+# Observacao (documentada em MODELO_DADOS.md):
+#   - "alembic" NAO esta instalado -> migracoes via create_all() + tabela de
+#     controle "versoes_do_esquema" e script versionado (app/dados/esquema.py)
+#   - "python-jose" e "passlib" NAO estao instalados -> usamos PyJWT + bcrypt
