@@ -38,6 +38,23 @@ pandas==2.3.2
 numpy==2.2.6
 joblib==1.5.3
 
+# --- SDK de agentes (pipeline da Fase 6) ----------------------------------
+# `cardioia.agents.orchestrator` faz `from agents import Agent, RunConfig, Runner` no
+# TOPO do modulo — ou seja, o pipeline precisa do SDK mesmo no modo simulado.
+# Faltando, `POST /avaliacoes` responde 503 (MODELO_INDISPONIVEL).
+#
+# Estavam instalados localmente e por isso passaram despercebidos: o defeito so aparece
+# no ambiente de deploy. Ha um teste que confere esta lista contra os imports reais.
+openai-agents==0.18.1
+openai==2.38.0
+
+# --- Item 7 da Etapa C (adaptador do Watson) ------------------------------
+# Importados de forma TARDIA por `app/integracao/fase_5.py` — so quando o Watson esta
+# configurado. Sem eles, o provedor local funciona normalmente, mas o caminho do Watson
+# falharia com ImportError em vez de atender.
+ibm-watson==11.2.0
+ibm-cloud-sdk-core==3.26.1
+
 # --- Testes ---------------------------------------------------------------
 pytest==9.1.1
 
