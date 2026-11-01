@@ -11,7 +11,9 @@ Decisoes que importam:
   `id_conversa`, gerado aqui. A sessao do provedor fica em `mensagens.session_id_do_provedor`
   e serve para dar continuidade ao dialogo.
 - **`fontes` e sempre `[]`** (nota **N6**): o Watson nao devolve fontes.
-- **Sem Watson configurado → `501 NAO_CONFIGURADO`**, comportamento herdado da Fase 5.
+- **Dois provedores, o mesmo contrato.** Com o Watson configurado, a resposta vem dele; sem
+  configuracao, vem do **provedor local** (base de conhecimento do projeto, sem rede nem
+  credencial). O cliente nao percebe diferenca: o contrato da resposta e identico.
 - **O turno do usuario e persistido mesmo quando o provedor falha**, com o texto amigavel que
   o usuario viu em `conteudo` e o detalhe tecnico em `erro` — assim o historico conta o que
   aconteceu de fato, sem inventar uma resposta que nao existiu.
@@ -41,6 +43,8 @@ from ..dados.base import get_sessao
 from ..dados.enums import PapelDaMensagem
 from ..dados.modelos import Conversa, Mensagem
 from ..dados.repositorios.conversas import ConversaRepositorio
+from ..integracao.assistente_local import nome_do_provedor
+from ..integracao.assistente_local import responder as responder_localmente
 from ..integracao.fase_5 import configuracao_faltando
 from ..integracao.fase_5 import conversar as conversar_com_o_assistente
 from .apoio import (
@@ -107,7 +111,8 @@ def _sessao_do_provedor(repositorio: ConversaRepositorio, id_conversa: str) -> s
     description=(
         "Sem `id_conversa`, abre uma conversa nova; com `id_conversa`, continua a existente. "
         "O `session_id` do Watson **nunca** e exposto — o identificador e o `id_conversa`. "
-        "Sem Watson configurado, responde `501 NAO_CONFIGURADO`."
+        "A resposta vem do Watson quando ele esta configurado e, caso contrario, do provedor "
+        "local de conhecimento — o contrato da resposta e o mesmo nos dois casos."
     ),
 )
 def conversar(
@@ -119,18 +124,9 @@ def conversar(
     """Conversa com o assistente e registra o turno."""
     config: Configuracoes = request.app.state.configuracoes
 
-    # 1) Configuracao primeiro: sem Watson nao ha conversa a abrir (nem linha a gravar).
-    faltando = configuracao_faltando(config)
-    if faltando:
-        raise ErroDaAPIException(
-            CodigoDeErro.NAO_CONFIGURADO,
-            "O assistente nao esta configurado para o Watson Assistant.",
-            campo="watson",
-            detalhe=(
-                f"Faltam: {', '.join(faltando)}. Preencha o .env — o backend le apenas de "
-                "variavel de ambiente e NAO usa os valores default do codigo da Fase 5."
-            ),
-        )
+    # 1) Qual provedor responde: o Watson quando configurado; senao, o provedor local
+    #    (base de conhecimento do projeto, sem dependencia de rede).
+    provedor = "watson" if not configuracao_faltando(config) else nome_do_provedor()
 
     repositorio = ConversaRepositorio(sessao)
 
@@ -146,7 +142,7 @@ def conversar(
             id_usuario=usuario.id,
             id_entidade=conversa.id,
             ip=ip_do_cliente(request),
-            detalhe={"canal": conversa.canal.value},
+            detalhe={"canal": conversa.canal.value, "provedor": provedor},
         )
 
     # 3) O turno do usuario e persistido antes de chamar o provedor: ele aconteceu.
@@ -154,13 +150,17 @@ def conversar(
         id_conversa=conversa.id, papel=PapelDaMensagem.USUARIO, conteudo=pedido.mensagem
     )
 
-    # 4) Chamada ao Watson (507/429/504/502 em caso de falha).
+    # 4) Chamada ao provedor. O local responde da base de conhecimento; o Watson pode
+    #    falhar com 507/429/504/502, e o historico registra o que o usuario viu.
     try:
-        resultado = conversar_com_o_assistente(
-            pedido.mensagem,
-            session_id=_sessao_do_provedor(repositorio, conversa.id),
-            config=config,
-        )
+        if provedor == "watson":
+            resultado = conversar_com_o_assistente(
+                pedido.mensagem,
+                session_id=_sessao_do_provedor(repositorio, conversa.id),
+                config=config,
+            )
+        else:
+            resultado = responder_localmente(pedido.mensagem)
     except ErroDaAPIException as erro:
         # O historico conta o que aconteceu: o texto amigavel que o usuario viu vai em
         # `conteudo`; o detalhe tecnico fica em `erro` (interno).

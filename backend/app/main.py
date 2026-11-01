@@ -173,6 +173,61 @@ def _registrar_handlers(app: FastAPI) -> None:
 # --------------------------------------------------------------------------- #
 
 
+def _semear_conta_de_demonstracao(app: FastAPI, config: Configuracoes) -> None:
+    """Cria a conta de demonstracao quando o banco ainda nao tem nenhum usuario.
+
+    Por que existe: hospedagem gratuita costuma ter sistema de arquivos **efemero** — o
+    SQLite volta vazio a cada reinicio, e sem usuario nao ha como entrar na aplicacao
+    publicada. Semear aqui torna o servico auto-suficiente.
+
+    E **idempotente**: se ja houver qualquer usuario, nao faz nada. Assim nao sobrescreve
+    senha nem recria conta removida de proposito.
+    """
+    if not config.semear_usuario_inicial:
+        return
+
+    fabrica = getattr(app.state, "fabrica_de_sessoes", None)
+    if fabrica is None:
+        return
+
+    # Import tardio: mantem o import de `app.main` barato.
+    from .dados.enums import PapelDoUsuario
+    from .dados.repositorios.identidade import UsuarioRepositorio
+    from .seguranca.senhas import gerar_hash
+
+    try:
+        papel = PapelDoUsuario(config.usuario_inicial_papel.strip().upper())
+    except ValueError:
+        registrador.error(
+            "USUARIO_INICIAL_PAPEL invalido (%r) — conta de demonstracao nao criada",
+            config.usuario_inicial_papel,
+        )
+        return
+
+    with fabrica() as sessao:
+        repositorio = UsuarioRepositorio(sessao)
+        if repositorio.listar(limite=1):
+            return
+        try:
+            usuario = repositorio.criar(
+                nome=config.usuario_inicial_nome,
+                email=config.usuario_inicial_email,
+                senha_hash=gerar_hash(config.usuario_inicial_senha),
+                papel=papel,
+            )
+        except ErroDaAPIException as erro:
+            # Conta ja existe com outro formato de e-mail, por exemplo: nao derruba o boot.
+            registrador.warning("conta de demonstracao nao criada: %s", erro.mensagem)
+            return
+
+    registrador.info(
+        "conta de demonstracao criada | email=%s | papel=%s | id=%s",
+        usuario.email,
+        usuario.papel.value,
+        usuario.id,
+    )
+
+
 @asynccontextmanager
 async def _ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
     """Prepara o banco na inicializacao e libera o engine no encerramento.
@@ -198,6 +253,7 @@ async def _ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
         registrador.info(
             "banco preparado | versao_do_esquema=%s | url=%s", versao, config.url_do_banco
         )
+        _semear_conta_de_demonstracao(app, config)
 
     # Cache do modelo (M3). Best-effort de proposito: se o artefato ou o SDK falharem, o
     # servidor **sobe** (M1) e a requisicao que precisar do modelo reporta o erro.

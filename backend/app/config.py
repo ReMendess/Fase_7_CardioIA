@@ -107,6 +107,25 @@ class Configuracoes(BaseSettings):
     )
 
     # ------------------------------------------------------------------ #
+    # Conta de demonstracao (semeada no startup)
+    # ------------------------------------------------------------------ #
+    # Por que existe: em hospedagem gratuita o sistema de arquivos e **efemero** — o
+    # banco SQLite volta vazio a cada reinicio, e sem usuario nao ha como entrar na
+    # aplicacao publicada. Semear no startup torna o servico auto-suficiente.
+    #
+    # Nao e um segredo de servico: e a conta de demonstracao do MVP academico. Em
+    # ambiente real, desligue (`SEMEAR_USUARIO_INICIAL=false`) e crie as contas por
+    # procedimento administrativo.
+    semear_usuario_inicial: bool = Field(default=True)
+    usuario_inicial_nome: str = Field(default="Usuario de Demonstracao")
+    usuario_inicial_email: str = Field(default="teste")
+    usuario_inicial_senha: str = Field(default="senhaTeste23@", repr=False)
+    usuario_inicial_papel: str = Field(
+        default="MEDICO",
+        description="Papel do RBAC: ADMIN, MEDICO ou OPERADOR.",
+    )
+
+    # ------------------------------------------------------------------ #
     # Integracoes (caminhos e URLs — nao sao segredos)
     # ------------------------------------------------------------------ #
     pasta_fase_6: str = Field(default="", description="Vazio = descoberta automatica.")

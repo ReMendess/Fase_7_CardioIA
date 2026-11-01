@@ -90,6 +90,9 @@ def _configuracao_base(pasta_fase_6: str, **extras: object) -> Configuracoes:
         # Nao aquecer o modelo no startup: cada aplicacao de teste pagaria ~5 s de import
         # da Fase 6. Os testes que precisam do pipeline aquecem o cache explicitamente.
         "aquecer_modelo_no_startup": False,
+        # Nenhum teste deve receber a conta de demonstracao: os ambientes de teste
+        # criam os proprios usuarios e varios deles contam registros.
+        "semear_usuario_inicial": False,
     }
     parametros.update(extras)
     return Configuracoes(**parametros)  # type: ignore[arg-type]

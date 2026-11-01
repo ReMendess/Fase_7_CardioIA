@@ -23,6 +23,21 @@ bcrypt==5.0.0
 # tambem em producao pelo adapter da Fase 4.
 httpx==0.28.1
 
+# --- Upload de imagem (multipart/form-data) -------------------------------
+# Exigido pelo FastAPI para `File(...)`. Sem ele, `POST /imagens` responde 500
+# no ambiente de deploy (localmente ja estava instalado e o problema passava
+# despercebido).
+python-multipart==0.0.20
+
+# --- Item 4 da Etapa C (pipeline da Fase 6) -------------------------------
+# Necessarias para carregar e executar o modelo de risco
+# (`cardioia.ml.predict` importa joblib, numpy e pandas). Sem elas, `POST /avaliacoes`
+# responde MODELO_INDISPONIVEL no deploy.
+scikit-learn==1.8.0
+pandas==2.3.2
+numpy==2.2.6
+joblib==1.5.3
+
 # --- Testes ---------------------------------------------------------------
 pytest==9.1.1
 

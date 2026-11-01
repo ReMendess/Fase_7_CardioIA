@@ -81,7 +81,7 @@ class RespostaDoAssistente:
     """
 
     resposta: str
-    session_id_do_provedor: str
+    session_id_do_provedor: str | None
 
 
 def configuracao_faltando(config: Configuracoes) -> list[str]:

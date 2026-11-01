@@ -182,7 +182,7 @@ def test_auditoria_apenas_na_abertura_da_conversa(
     eventos = _auditorias(ambiente_do_assistente, ACAO_ABRIR_CONVERSA)
     assert len(eventos) == 1
     assert eventos[0].id_entidade == primeira["dados"]["id_conversa"]
-    assert eventos[0].detalhe_json == {"canal": "web"}
+    assert eventos[0].detalhe_json == {"canal": "web", "provedor": "watson"}
     # O conteudo da conversa nao entra na trilha.
     assert "um" not in str(eventos[0].detalhe_json)
 
@@ -192,20 +192,45 @@ def test_auditoria_apenas_na_abertura_da_conversa(
 # --------------------------------------------------------------------------- #
 
 
-def test_sem_watson_configurado_devolve_501(ambiente_sem_watson: AmbienteClinico) -> None:
-    resultado = conversar_com_o_assistente(ambiente_sem_watson)
+def test_sem_watson_responde_pelo_provedor_local(ambiente_sem_watson: AmbienteClinico) -> None:
+    """Sem Watson configurado, quem responde e o provedor local — mesmo contrato.
 
-    assert resultado["status_code"] == 501
-    assert resultado["corpo"]["erros"][0]["codigo"] == "NAO_CONFIGURADO"
-    # Nada e gravado: sem Watson nao ha conversa a abrir.
-    assert _conversas(ambiente_sem_watson) == []
-    assert _mensagens(ambiente_sem_watson) == []
+    O cliente nao percebe diferenca: a resposta traz `id_conversa`, `resposta`, `papel`
+    e `fontes`, exatamente como a do provedor externo.
+    """
+    resultado = conversar_com_o_assistente(
+        ambiente_sem_watson, mensagem="Estou com dor no peito e falta de ar"
+    )
+
+    assert resultado["status_code"] == 200
+    dados = resultado["corpo"]["dados"]
+    assert dados["papel"] == "assistant"
+    assert dados["fontes"] == []  # N6: nunca ha fontes
+    assert dados["resposta"].strip()
+    # Sinal de alerta tem de encaminhar para atendimento de emergencia.
+    assert "192" in dados["resposta"]
 
 
-def test_mensagem_do_501_diz_o_que_falta(ambiente_sem_watson: AmbienteClinico) -> None:
-    detalhe = conversar_com_o_assistente(ambiente_sem_watson)["corpo"]["erros"][0]["detalhe"]
-    assert "WATSON_API_KEY" in detalhe
-    assert "default" in detalhe  # deixa claro que nao usa os valores da Fase 5
+def test_turno_do_provedor_local_e_persistido(ambiente_sem_watson: AmbienteClinico) -> None:
+    """O historico conta a conversa: os dois turnos ficam gravados."""
+    resultado = conversar_com_o_assistente(ambiente_sem_watson, mensagem="O que voce faz?")
+
+    assert resultado["status_code"] == 200
+    assert len(_conversas(ambiente_sem_watson)) == 1
+
+    mensagens = _mensagens(ambiente_sem_watson)
+    assert [m.papel.value for m in mensagens] == ["user", "assistant"]
+    # O provedor local e stateless: nao existe sessao remota a guardar (I8).
+    assert mensagens[1].session_id_do_provedor is None
+
+
+def test_provedor_local_e_registrado_na_auditoria(ambiente_sem_watson: AmbienteClinico) -> None:
+    """A trilha registra QUAL provedor atendeu — sem o conteudo da conversa."""
+    conversar_com_o_assistente(ambiente_sem_watson)
+
+    eventos = _auditorias(ambiente_sem_watson, ACAO_ABRIR_CONVERSA)
+    assert len(eventos) == 1
+    assert eventos[0].detalhe_json == {"canal": "web", "provedor": "local"}
 
 
 def test_conversa_inexistente_devolve_404(ambiente_do_assistente: AmbienteClinico) -> None:

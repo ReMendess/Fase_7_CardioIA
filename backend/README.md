@@ -111,7 +111,7 @@ backend/
 │       ├── iot.py               # ⬅ item 5: ingestão e histórico de telemetria
 │       ├── imagens.py           # ⬅ item 6: diagnóstico por imagem (Fase 4)
 │       └── assistente.py        # ⬅ item 7: chat e histórico de conversas (Fase 5)
-└── tests/                       # 586 testes
+└── tests/                       # 636 testes
     ├── conftest.py
     ├── test_config.py
     ├── test_contratos_envelope.py
@@ -304,6 +304,33 @@ def criar(usuario: Usuario = Depends(exigir_papeis(PapelDoUsuario.MEDICO))):
 > 2. o `logout` revoga **todas** as sessões do usuário (não apenas a do dispositivo);
 > 3. o access token é *stateless*: após o logout ele continua assinado até expirar
 >    (mitigado pela vida curta); as **renovações** param imediatamente.
+
+---
+
+### Conta de demonstração (semeada no startup)
+
+Em hospedagem gratuita o sistema de arquivos costuma ser **efêmero**: o SQLite volta vazio a
+cada reinício, e sem usuário não há como entrar na aplicação publicada. Por isso o servidor
+**semeia uma conta** quando o banco ainda não tem nenhum usuário.
+
+| Variável | Padrão | Para que |
+|---|---|---|
+| `SEMEAR_USUARIO_INICIAL` | `true` | liga/desliga a semeadura |
+| `USUARIO_INICIAL_EMAIL` | `teste` | login da conta |
+| `USUARIO_INICIAL_SENHA` | `senhaTeste23@` | senha (armazenada **só** como hash bcrypt) |
+| `USUARIO_INICIAL_NOME` | `Usuario de Demonstracao` | nome exibido |
+| `USUARIO_INICIAL_PAPEL` | `MEDICO` | papel do RBAC |
+
+Garantias:
+
+- **idempotente** — se já houver **qualquer** usuário, não faz nada (não sobrescreve senha
+  nem recria conta removida de propósito);
+- **não derruba o boot** — papel inválido vira log de erro e o servidor sobe normalmente;
+- **desligável** — `SEMEAR_USUARIO_INICIAL=false` para ambientes onde a criação de contas é
+  procedimento administrativo (é o que a suíte de testes usa).
+
+> 🔒 Não é segredo de serviço: é a **conta de demonstração** do MVP acadêmico. Em ambiente
+> real, desligue a semeadura e crie as contas por procedimento administrativo.
 
 ---
 
@@ -661,7 +688,7 @@ assumir a ausência — e a ausência está declarada em `limitacoes`.
 
 | Situação | Resposta |
 |---|---|
-| Watson **não configurado** | `501 NAO_CONFIGURADO` (com a lista do que falta) |
+| Watson **não configurado** | responde pelo **provedor local** (não é erro) |
 | Credencial inválida do Watson (401/403) | `502` + código **`FALHA_DE_AUTENTICACAO_EXTERNA`** |
 | Cota do plano (429) | `429 COTA_EXCEDIDA` |
 | Demora (408/504) | `504 TIMEOUT_EXTERNO` |
@@ -675,6 +702,31 @@ assumir a ausência — e a ausência está declarada em `limitacoes`.
 
 A sessão expirada no Watson (404) é **recuperada**: o backend abre outra e reintenta **uma
 vez** — mesmo comportamento do `app.py` da Fase 5.
+
+### Dois provedores, o mesmo contrato
+
+| Provedor | Quando é usado | Depende de |
+|---|---|---|
+| **Local** (padrão) | quando o Watson não está configurado | **nada** — base de conhecimento do projeto, em Python puro |
+| **Watson** | quando as variáveis `WATSON_*` estão preenchidas | rede, credencial e cota do provedor |
+
+O cliente **não percebe a diferença**: `id_conversa`, `resposta`, `papel`, `fontes`,
+`avisos` e `limitacoes` são idênticos nos dois casos. O que muda é apenas **quem** produz o
+texto — e o provedor usado fica registrado na trilha de auditoria
+(`eventos_de_auditoria.detalhe.provedor`).
+
+O provedor local (`app/integracao/assistente_local.py`) casa a mensagem com **11 assuntos**
+(dor no peito, falta de ar, palpitações, pressão alta, febre, cansaço, prevenção, …) usando
+os termos do próprio catálogo. Três garantias:
+
+- **sinais de alerta vêm primeiro** — dor no peito com falta de ar ou desmaio encaminha para
+  o **192**, e essa intenção não pode ser ofuscada por um termo genérico;
+- **acento e caixa não importam** — o texto é normalizado antes do casamento;
+- **assunto desconhecido não vira orientação clínica** — devolve uma resposta padrão em vez
+  de arriscar.
+
+> 🔒 O provedor local é **stateless**: não existe `session_id` a guardar, e o campo fica
+> `null` em `mensagens.session_id_do_provedor`. O achado **I8** continua respeitado.
 
 ### Exemplo
 
