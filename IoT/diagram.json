@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "author": "CardioIA - Fase 7",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -76.8,
+      "left": 174.5,
+      "attrs": { "temperature": "38.9" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 92.4,
+      "left": 115.2,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 139.2,
+      "left": 86.4,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 53.4,
+      "left": 174.4,
+      "attrs": { "color": "green", "label": "BATIMENTO", "bounce": "0" }
+    },
+    {
+      "type": "board-ssd1306",
+      "id": "oled1",
+      "top": 179.5,
+      "left": 279.5,
+      "attrs": { "i2cAddress": "0x3c" }
+    }
+  ],
+  "connections": [
+    ["esp:TX0", "$serialMonitor:RX", "", []],
+    ["esp:RX0", "$serialMonitor:TX", "", []],
+
+    ["esp:3V3", "dht1:VCC", "red", ["v0.5", "h-31.9"]],
+    ["dht1:SDA", "esp:D15", "green", ["v-47.3", "h-172.5"]],
+    ["dht1:GND", "esp:GND.1", "black", ["v-61", "h-190.4"]],
+
+    ["esp:D2", "r1:1", "orange", ["h63", "v61.2"]],
+    ["r1:2", "led1:A", "orange", ["v-12.6"]],
+    ["led1:C", "esp:GND.2", "black", ["v-38.9", "h-76.8"]],
+
+    ["esp:D18", "btn1:1.l", "blue", ["v-70.5", "h134.4"]],
+    ["btn1:2.l", "esp:GND.1", "black", ["v-19.2", "h-230.4"]],
+
+    ["esp:3V3", "oled1:VCC", "red", ["h95.4", "v76.8"]],
+    ["esp:GND.2", "oled1:GND", "black", ["v-19.2", "h249.6"]],
+    ["esp:D21", "oled1:SDA", "green", ["v-67.2", "h240"]],
+    ["esp:D22", "oled1:SCL", "purple", ["v-57.6", "h259.2"]]
+  ],
+  "dependencies": {}
+}

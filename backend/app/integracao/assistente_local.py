@@ -129,7 +129,7 @@ INTENCOES: tuple[Intencao, ...] = (
             "rapido e irregular por varios minutos.\n\n"
             "No dia a dia, anote a duracao, o que estava fazendo e se havia cafeina, "
             "alcool ou estresse envolvidos. No monitoramento do projeto, a faixa de "
-            "atencao para frequencia cardiaca comeca acima de 100 bpm em repouso."
+            "atencao para frequencia cardiaca comeca acima de 120 bpm."
         ),
     ),
     Intencao(
@@ -151,9 +151,9 @@ INTENCOES: tuple[Intencao, ...] = (
         resposta=(
             "A febre por si so nao indica problema cardiaco, mas sobrecarrega o coracao: "
             "a frequencia cardiaca sobe cerca de 10 bpm por grau acima do normal.\n\n"
-            "No monitoramento do projeto, a regra da Fase 3 marca alerta a partir de "
-            "37,8 °C. Se houver febre com falta de ar, dor no peito, confusao ou queda de "
-            "pressao, procure atendimento."
+            "No monitoramento do projeto, a regra da Fase 3 marca alerta quando a "
+            "temperatura passa de 38 °C. Se houver febre com falta de ar, dor no peito, "
+            "confusao ou queda de pressao, procure atendimento."
         ),
     ),
     Intencao(
