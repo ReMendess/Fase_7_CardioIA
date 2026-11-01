@@ -100,23 +100,35 @@ emitido pelo backend (`cardioia.sessao`); a senha nunca é armazenada.
 | Rota | Tela | O que mostra |
 |---|---|---|
 | `/` | **Acesso** | login real, estado do backend (`GET /health`) e o aviso acadêmico |
-| `/dashboard` | **Visão geral** | risco do paciente em foco, indicadores cardíacos (telemetria), contrato do modelo, avisos e limitações |
+| `/dashboard` | **Visão geral** | risco do paciente em foco, resumo, indicadores do dispositivo, avisos e limitações |
 | `/pacientes` | **Pacientes** | lista, cadastro (só `MEDICO`), seleção do paciente em foco |
 | `/avaliacao` | **Avaliação** | formulário das **10 features**, modo `simulado`/`real`, resultado com protocolos e trilha |
 | `/historico` | **Histórico** | lista de execuções e o detalhe auditável (resposta persistida da Fase 6) |
-| `/monitoramento` | **Monitoramento IoT** | leituras dos dispositivos e exemplo de ingestão |
+| `/monitoramento` | **Monitoramento** | leituras dos dispositivos |
 | `/assistente` | **Assistente** | chat (Watson), com os estados `501` e `403` explicados |
 | `/agenda` | **Agenda** | ⚠️ **demonstrativa** — não existe endpoint de agenda no contrato |
 
-### Identificação de origem dos dados
+### Densidade da informação
 
-Toda seção declara de onde vem o número (item 3 da Etapa D):
+Princípio que orienta as telas: **o dado primeiro, a ressalva a um clique.**
 
-| Selo | Significado |
-|---|---|
-| `Dado da API` | lido de um endpoint |
-| `Resultado preditivo` | saída do modelo da Fase 6 |
-| `Demonstrativo` | não persiste / não vem do backend |
+| Elemento | Como aparece | Por quê |
+|---|---|---|
+| Avisos do envelope | `<details>` recolhido, com a contagem | o contrato exige que **existam** na resposta, não que ocupem a tela |
+| Limitações declaradas | `<details>` recolhido | idem |
+| Narrativa, justificativas e trilha do pipeline | `<details>` recolhido | texto de auditoria, não de leitura clínica |
+| Detalhes do modelo (limiar, regra, estimador) | `<details>` recolhido | contexto técnico |
+| Protocolos e indicadores deterministas | **visíveis** | é o conteúdo acionável da resposta |
+| Risco e sinais vitais | **visíveis** | é o motivo de a tela existir |
+
+Dois ajustes acompanham esse princípio:
+
+- **Selos de origem removidos.** Cada bloco trazia um selo "Dado da API" / "Resultado
+  preditivo". A informação continua no README e em `CONTRATOS_API.md`; na tela, o rótulo da
+  própria seção já diz de onde vem o número. Repetir o selo em cada painel era ruído.
+- **Sinais de escala e confiança das features** (8 das 10 não são medições individuais do
+  paciente) passaram para o **tooltip** do cartão. O selo `fora da faixa` permanece visível,
+  porque esse muda a leitura do número.
 
 ---
 
@@ -140,7 +152,8 @@ Toda seção declara de onde vem o número (item 3 da Etapa D):
 | `POST` | `/imagens` | cliente pronto; **sem tela** (ver §7) |
 
 **Não consumido:** `POST /iot/leituras`. A interface **não** ingere telemetria — quem
-ingere é o firmware (Fase 3). A aba Monitoramento só mostra o `curl` de exemplo.
+ingere é o dispositivo (firmware da Fase 3 / `IoT/main.py`). O `curl` de exemplo está em
+`IoT/README.md` §7.1.
 
 ---
 
@@ -164,7 +177,7 @@ frontend/
     ├── components/
     │   ├── ProtectedRoute.jsx   # exige sessao confirmada
     │   ├── Estado.jsx           # carregando · falha · vazio · avisos · limitacoes
-    │   ├── Indicador.jsx        # barra de feature (faixa do contrato + selos)
+    │   ├── Indicador.jsx        # barra de feature (faixa do contrato)
     │   ├── NivelDeRisco.jsx     # medidor de risco (classificacao vem do BACKEND)
     │   ├── ResultadoDaAvaliacao.jsx  # contrato da Fase 6: protocolos, trilha, narrativa
     │   ├── SeletorDePaciente.jsx

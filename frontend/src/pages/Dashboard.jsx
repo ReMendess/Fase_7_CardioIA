@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listarAvaliacoes, listarLeituras, obterAvaliacao, saude } from "../api/endpoints";
-import { Avisos, Carregando, Falha, Limitacoes, Origem, Vazio } from "../components/Estado";
+import { Avisos, Carregando, Falha, Limitacoes, Vazio } from "../components/Estado";
 import NivelDeRisco from "../components/NivelDeRisco";
 import SeletorDePaciente from "../components/SeletorDePaciente";
 import { useAuth } from "../contexts/AuthContext";
 import { usePacientes } from "../contexts/PacienteContext";
-import { ORIGENS_DO_TRANSPORTE, STATUS_DA_RESPOSTA } from "../dominio/catalogo";
+import { STATUS_DA_RESPOSTA } from "../dominio/catalogo";
 
 /**
  * Dashboard clinico.
@@ -122,10 +122,7 @@ export default function Dashboard() {
       ) : (
         <div className="grid2">
           <section className="panel">
-            <h3 className="panelTitle">
-              Resultado de risco
-              <Origem tipo="preditivo" />
-            </h3>
+            <h3 className="panelTitle">Resultado de risco</h3>
 
             {estado.carregando ? (
               <Carregando texto="Carregando avaliacoes..." linhas={2} />
@@ -166,15 +163,8 @@ export default function Dashboard() {
       )}
 
       <section className="panel">
-        <h3 className="panelTitle">
-          Indicadores cardiacos
-          <Origem tipo="api" />
-        </h3>
-        <p className="helper">
-          Ultima leitura recebida dos dispositivos (Fase 3). ⚠️ A telemetria{" "}
-          <strong>nao e vinculada a paciente</strong> no contrato §4.2 — estes numeros sao
-          do <strong>dispositivo</strong>, nao do paciente em foco.
-        </p>
+        <h3 className="panelTitle">Indicadores cardiacos</h3>
+        <p className="helper">Numeros do dispositivo, nao do paciente.</p>
 
         {leituras.carregando ? (
           <Carregando texto="Carregando telemetria..." linhas={2} />
@@ -182,8 +172,7 @@ export default function Dashboard() {
           <Falha erro={leituras.erro} />
         ) : !ultimaLeitura ? (
           <Vazio titulo="Nenhuma leitura recebida">
-            O firmware da Fase 3 publica em <code>hospital/*</code>; a ingestao e{" "}
-            <code>POST /iot/leituras</code>. Veja a aba{" "}
+            Nada chegou ainda. Veja a aba{" "}
             <Link to="/monitoramento">Monitoramento</Link>.
           </Vazio>
         ) : (
@@ -196,46 +185,29 @@ export default function Dashboard() {
             </div>
             <p className="helper" style={{ marginTop: 10 }}>
               {ultimaLeitura.id_dispositivo} · {formatarData(ultimaLeitura.recebido_em)} ·{" "}
-              {ORIGENS_DO_TRANSPORTE[ultimaLeitura.origem_transporte] ??
-                ultimaLeitura.origem_transporte}{" "}
-              · <Link to="/monitoramento">ver todas as leituras</Link>
+              <Link to="/monitoramento">ver todas as leituras</Link>
             </p>
           </>
         )}
       </section>
 
-      {selecionado && (
-        <section className="panel">
-          <h3 className="panelTitle">
-            Contrato do modelo
-            <Origem tipo="preditivo" />
-          </h3>
-
-          {nomesDasFeatures.length === 0 ? (
-            <Vazio titulo="Nenhuma avaliacao registrada">
-              As 10 features so existem depois de uma avaliacao — elas sao o{" "}
-              <em>estado clinico datado</em>, nao o cadastro.{" "}
-              <Link to="/avaliacao">Fazer uma avaliacao</Link>.
-            </Vazio>
-          ) : (
-            <>
-              <div className="row" style={{ flexWrap: "wrap" }}>
-                {nomesDasFeatures.map((nome) => (
-                  <span className="etiqueta" key={nome}>
-                    {nome}
-                  </span>
-                ))}
-              </div>
-              <p className="helper" style={{ marginTop: 10 }}>
-                ⚠️ A API devolve os <strong>nomes</strong> das features que o modelo usou,
-                nao os valores: eles ficam no registro persistido e <strong>nao sao
-                expostos</strong> por nenhum endpoint. Para ver os valores, faça uma nova
-                avaliacao em <Link to="/avaliacao">Avaliacao</Link> — as barras aparecem
-                com o que voce digitou.
-              </p>
-            </>
-          )}
-        </section>
+      {selecionado && nomesDasFeatures.length > 0 && (
+        <details className="bloco bloco--limitacoes">
+          <summary>
+            Features usadas na ultima avaliacao ({nomesDasFeatures.length})
+          </summary>
+          <div className="row" style={{ flexWrap: "wrap", marginTop: 10 }}>
+            {nomesDasFeatures.map((nome) => (
+              <span className="etiqueta" key={nome}>
+                {nome}
+              </span>
+            ))}
+          </div>
+          <p className="helper" style={{ marginTop: 10 }}>
+            Os valores ficam no registro persistido e nao sao expostos pela API. Para ver os
+            numeros, faça uma nova avaliacao em <Link to="/avaliacao">Avaliacao</Link>.
+          </p>
+        </details>
       )}
 
       {avaliacao && (
@@ -253,55 +225,6 @@ export default function Dashboard() {
           </div>
         </section>
       )}
-
-      <section className="panel">
-        <h3 className="panelTitle">
-          Monitoramento IoT
-          <Origem tipo="api" />
-        </h3>
-        <p className="helper">
-          ⚠️ A telemetria <strong>nao e vinculada a paciente</strong> no contrato §4.2 —
-          estas leituras sao de todos os dispositivos.
-        </p>
-
-        {leituras.carregando ? (
-          <Carregando texto="Carregando telemetria..." linhas={2} />
-        ) : leituras.erro ? (
-          <Falha erro={leituras.erro} />
-        ) : !leituras.itens.length ? (
-          <Vazio titulo="Nenhuma leitura recebida">
-            O firmware da Fase 3 publica em <code>hospital/*</code>; a ingestao e{" "}
-            <code>POST /iot/leituras</code>. Veja a aba{" "}
-            <Link to="/monitoramento">Monitoramento</Link>.
-          </Vazio>
-        ) : (
-          <>
-            <div className="list">
-              {leituras.itens.slice(0, 3).map((leitura) => (
-                <div className="listItem" key={leitura.id_leitura}>
-                  <div>
-                    <div className="listItemTitle">{leitura.id_dispositivo}</div>
-                    <div className="helper">
-                      {formatarData(leitura.recebido_em)} ·{" "}
-                      {ORIGENS_DO_TRANSPORTE[leitura.origem_transporte] ??
-                        leitura.origem_transporte}
-                    </div>
-                  </div>
-                  <div className="row">
-                    {leitura.temperatura != null && (
-                      <span className="pill">{leitura.temperatura} °C</span>
-                    )}
-                    {leitura.bpm != null && <span className="pill">{leitura.bpm} bpm</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="helper" style={{ marginTop: 10 }}>
-              <Link to="/monitoramento">Ver todas as leituras</Link>
-            </p>
-          </>
-        )}
-      </section>
     </div>
   );
 }

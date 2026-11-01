@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listarAvaliacoes, obterAvaliacao } from "../api/endpoints";
-import { Carregando, Falha, Origem, Vazio } from "../components/Estado";
+import { Carregando, Falha, Vazio } from "../components/Estado";
 import NivelDeRisco from "../components/NivelDeRisco";
 import { DetalhesDoContrato } from "../components/ResultadoDaAvaliacao";
 import SeletorDePaciente from "../components/SeletorDePaciente";
@@ -101,10 +101,7 @@ export default function Historico() {
       </section>
 
       <section className="panel">
-        <h3 className="panelTitle">
-          Avaliacoes ({lista.itens.length})
-          <Origem tipo="api" />
-        </h3>
+        <h3 className="panelTitle">Avaliacoes ({lista.itens.length})</h3>
 
         {lista.carregando ? (
           <Carregando texto="Carregando historico..." />
@@ -133,10 +130,7 @@ export default function Historico() {
 
       {detalhe.id && (
         <section className="panel">
-          <h3 className="panelTitle">
-            Detalhe da execucao
-            <Origem tipo="api" />
-          </h3>
+          <h3 className="panelTitle">Detalhe da execucao</h3>
 
           {detalhe.carregando ? (
             <Carregando texto="Carregando o registro..." linhas={2} />

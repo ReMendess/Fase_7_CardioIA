@@ -756,7 +756,7 @@ tocá-las.
 | **Validação** | `scripts/smoke.mjs` |
 
 **Telas implementadas (8):** Acesso · Visão geral · Pacientes · Avaliação · Histórico ·
-Monitoramento IoT · Assistente · Agenda (demonstrativa).
+Monitoramento · Assistente · Agenda (demonstrativa).
 
 ### 11.5 Incompatibilidades tratadas
 

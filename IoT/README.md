@@ -125,6 +125,22 @@ exige, então ele é definido no dispositivo.
 > ⚠️ O firmware **não envia timestamp**: o backend carimba `recebido_em`. Isso está no
 > contrato (`CONTRATOS_API.md` §4.2) e evita confiar no relógio do dispositivo.
 
+### 7.1 Enviar uma leitura sem o simulador
+
+Útil para testar a ingestão antes de montar o circuito. Aceita a chave de dispositivo **ou**
+um usuário `OPERADOR` (`MEDICO` e `ADMIN` recebem `403` — ingestão não é ato clínico):
+
+```bash
+curl -X POST "$API/api/v1/iot/leituras" \
+  -H "X-Device-Key: $IOT_DEVICE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"id_dispositivo":"esp32-teste","origem_transporte":"rest","temperatura":38.9,"bpm":132}'
+```
+
+A resposta traz `avisos` com o alerta das regras, quando houver. Com `temperatura = 38.9`
+o esperado é **`FEBRE DETECTADA`**.
+
+
 ---
 
 ## 8. Verificação

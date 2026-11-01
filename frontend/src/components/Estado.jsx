@@ -60,18 +60,26 @@ export function Vazio({ titulo = "Nada por aqui ainda", children }) {
   );
 }
 
-/** Avisos do envelope (faixas do modelo, confiabilidade, alertas das regras da Fase 3). */
+/**
+ * Avisos do envelope (faixas do modelo, confiabilidade, alertas das regras da Fase 3).
+ *
+ * **Recolhido por padrao.** O aviso continua a um clique, mas nao ocupa a tela: quem
+ * abre a pagina quer o dado, nao a lista de ressalvas. O contrato exige que os avisos
+ * existam na resposta — e existem, apenas sob demanda.
+ */
 export function Avisos({ itens, titulo = "Avisos" }) {
   if (!itens?.length) return null;
   return (
-    <div className="bloco bloco--aviso">
-      <div className="blocoTitulo">{titulo}</div>
+    <details className="bloco bloco--aviso">
+      <summary>
+        {titulo} ({itens.length})
+      </summary>
       <ul className="listaSimples">
         {itens.map((texto, indice) => (
           <li key={indice}>{texto}</li>
         ))}
       </ul>
-    </div>
+    </details>
   );
 }
 
@@ -90,13 +98,3 @@ export function Limitacoes({ itens }) {
   );
 }
 
-/** Selo de origem do dado — separa o que e real, simulado e preditivo (item 3). */
-export function Origem({ tipo, children }) {
-  const rotulos = {
-    api: "Dado da API",
-    simulado: "Simulado",
-    preditivo: "Resultado preditivo",
-    demonstrativo: "Demonstrativo",
-  };
-  return <span className={`etiqueta etiqueta--${tipo}`}>{children || rotulos[tipo]}</span>;
-}

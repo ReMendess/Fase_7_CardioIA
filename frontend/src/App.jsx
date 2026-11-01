@@ -69,28 +69,15 @@ function Inicio() {
   );
 }
 
-/** Texto de contexto da tela de acesso. */
+/** Texto de contexto da tela de acesso — uma linha, sem repetir o README. */
 function Sobre() {
   return (
     <section className="panel" aria-label="Sobre o sistema">
       <h2 className="panelTitle">Sobre</h2>
-      <div className="stack">
-        <p className="helper">
-          MVP academico que integra as Fases 3 (IoT), 4 (visao computacional), 5
-          (assistente) e 6 (pipeline de risco) sob um contrato unico.
-        </p>
-        <div className="mutedBox">
-          ⚠️ Os dados do projeto sao <strong>sinteticos</strong> e nao ha validacao
-          clinica. Nenhum resultado constitui diagnostico, prescricao ou recomendacao
-          medica.
-        </div>
-        <div className="mutedBox">
-          🔒 O acesso e controlado por <strong>JWT</strong> com papeis{" "}
-          <span className="mono">MEDICO</span>, <span className="mono">OPERADOR</span> e{" "}
-          <span className="mono">ADMIN</span>. A autorizacao e do backend — a interface
-          apenas reflete o que ele permite.
-        </div>
-      </div>
+      <p className="helper">
+        Plataforma CardioIA. Os dados sao sinteticos, sem validacao clinica, e nenhum
+        resultado e diagnostico, prescricao ou recomendacao medica.
+      </p>
     </section>
   );
 }

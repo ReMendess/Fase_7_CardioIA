@@ -44,14 +44,17 @@ export default function NivelDeRisco({ diagnostico, compacto = false }) {
       </div>
 
       {!compacto && (
-        <div className="riscoDetalhes">
-          <Linha rotulo="Pico previsto" valor={pico ? "sim" : "nao"} />
-          <Linha rotulo="Modelo" valor={diagnostico.modelo_utilizado} />
-          <Linha rotulo="Limiar de decisao" valor={diagnostico.limiar_decisao} />
-          <Linha rotulo="Regra de decisao" valor={diagnostico.regra_de_decisao} />
-          <Linha rotulo="Estimador" valor={diagnostico.classe_do_estimador} />
-          <Linha rotulo="Origem do modelo" valor={diagnostico.origem_do_modelo} />
-        </div>
+        <details className="bloco bloco--limitacoes" style={{ marginTop: 12 }}>
+          <summary>Detalhes do modelo</summary>
+          <div className="riscoDetalhes">
+            <Linha rotulo="Pico previsto" valor={pico ? "sim" : "nao"} />
+            <Linha rotulo="Modelo" valor={diagnostico.modelo_utilizado} />
+            <Linha rotulo="Limiar de decisao" valor={diagnostico.limiar_decisao} />
+            <Linha rotulo="Regra de decisao" valor={diagnostico.regra_de_decisao} />
+            <Linha rotulo="Estimador" valor={diagnostico.classe_do_estimador} />
+            <Linha rotulo="Origem do modelo" valor={diagnostico.origem_do_modelo} />
+          </div>
+        </details>
       )}
     </div>
   );

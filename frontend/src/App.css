@@ -293,29 +293,6 @@
   white-space: nowrap;
 }
 
-.etiqueta--api {
-  border-color: rgba(14, 165, 233, 0.35);
-  background: rgba(14, 165, 233, 0.1);
-  color: var(--primary-strong);
-}
-.etiqueta--preditivo {
-  border-color: rgba(139, 92, 246, 0.35);
-  background: rgba(139, 92, 246, 0.1);
-  color: #6d28d9;
-}
-.etiqueta--simulado {
-  border-color: rgba(100, 116, 139, 0.35);
-  background: rgba(100, 116, 139, 0.1);
-}
-.etiqueta--demonstrativo {
-  border-color: rgba(234, 179, 8, 0.4);
-  background: rgba(234, 179, 8, 0.12);
-  color: #92400e;
-}
-.etiqueta--episodio {
-  border-color: rgba(100, 116, 139, 0.3);
-}
-.etiqueta--baixa,
 .etiqueta--fora {
   border-color: rgba(234, 88, 12, 0.4);
   background: rgba(234, 88, 12, 0.12);
@@ -531,11 +508,6 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.indicadorSelos {
-  display: inline-flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
 
 /* --- nivel de risco (medidor + selo) -------------------------------------- */
 
@@ -729,11 +701,15 @@ select:focus {
   color: var(--text);
   margin-bottom: 8px;
 }
-.bloco--limitacoes summary {
+/* Blocos recolhiveis (avisos, limitacoes, narrativa, trilha, features). */
+details.bloco summary {
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
+}
+details.bloco[open] summary {
+  margin-bottom: 8px;
 }
 
 .listaSimples {

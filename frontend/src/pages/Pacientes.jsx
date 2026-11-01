@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Carregando, Falha, Origem, Vazio } from "../components/Estado";
+import { Carregando, Falha, Vazio } from "../components/Estado";
 import { useAuth } from "../contexts/AuthContext";
 import { usePacientes } from "../contexts/PacienteContext";
 import { mensagemDoErro } from "../api/cliente";
@@ -72,20 +72,13 @@ export default function Pacientes() {
 
       {!podeEscreverClinico && (
         <section className="panel">
-          <p className="helper">
-            Seu papel (<span className="mono">ADMIN</span> ou{" "}
-            <span className="mono">OPERADOR</span>) permite <strong>consultar</strong>{" "}
-            pacientes, mas nao cadastrar — o contrato exige <span className="mono">MEDICO</span>.
-          </p>
+          <p className="helper">Sua conta pode consultar pacientes, mas nao cadastrar.</p>
         </section>
       )}
 
       <section className="panel">
         <div className="painelTopo">
-          <h3 className="panelTitle">
-            Pacientes ({pacientes.length})
-            <Origem tipo="api" />
-          </h3>
+          <h3 className="panelTitle">Pacientes ({pacientes.length})</h3>
           <button type="button" className="logoutBtn" onClick={recarregar}>
             Atualizar
           </button>

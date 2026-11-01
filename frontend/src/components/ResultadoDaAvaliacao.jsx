@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ErroDaAPI } from "../api/cliente";
-import { Avisos, Falha, Limitacoes, Origem } from "./Estado";
+import { Avisos, Falha, Limitacoes } from "./Estado";
 import Indicador from "./Indicador";
 import NivelDeRisco from "./NivelDeRisco";
 import { FEATURES_DO_MODELO } from "../dominio/catalogo";
@@ -18,10 +18,7 @@ export function ResultadoDaAvaliacao({ envelope, titulo = "Resultado", featuresE
   const contrato = envelope.dados;
   return (
     <section className="panel">
-      <h3 className="panelTitle">
-        {titulo}
-        <Origem tipo="preditivo" />
-      </h3>
+      <h3 className="panelTitle">{titulo}</h3>
       <NivelDeRisco diagnostico={contrato?.diagnostico} />
       <DetalhesDoContrato contrato={contrato} featuresEnviadas={featuresEnviadas} />
       <Avisos itens={envelope.avisos} titulo="Avisos" />
@@ -84,11 +81,9 @@ export function DetalhesDoContrato({ contrato, featuresEnviadas = null }) {
         </div>
       ) : (
         nomesDasFeatures.length > 0 && (
-          <div className="bloco">
-            <div className="blocoTitulo">
-              Features do contrato usadas pelo modelo ({nomesDasFeatures.length})
-            </div>
-            <div className="row" style={{ flexWrap: "wrap" }}>
+          <details className="bloco bloco--limitacoes">
+            <summary>Features usadas pelo modelo ({nomesDasFeatures.length})</summary>
+            <div className="row" style={{ flexWrap: "wrap", marginTop: 10 }}>
               {nomesDasFeatures.map((nome) => (
                 <span className="etiqueta" key={nome}>
                   {nome}
@@ -96,29 +91,28 @@ export function DetalhesDoContrato({ contrato, featuresEnviadas = null }) {
               ))}
             </div>
             <p className="helper" style={{ marginTop: 8 }}>
-              A API devolve os <strong>nomes</strong> das features usadas, nao os valores:
-              eles ficam no registro persistido e nao sao expostos por nenhum endpoint.
+              A API devolve os <strong>nomes</strong> das features, nao os valores.
             </p>
-          </div>
+          </details>
         )
       )}
 
       {contrato.narrativa && (
-        <div className="bloco">
-          <div className="blocoTitulo">Narrativa da execucao</div>
-          <p style={{ whiteSpace: "pre-wrap" }}>{contrato.narrativa}</p>
-        </div>
+        <details className="bloco bloco--limitacoes">
+          <summary>Narrativa da execucao</summary>
+          <p style={{ whiteSpace: "pre-wrap", marginTop: 10 }}>{contrato.narrativa}</p>
+        </details>
       )}
 
       {justificativas.length > 0 && (
-        <div className="bloco">
-          <div className="blocoTitulo">Justificativas ({justificativas.length})</div>
+        <details className="bloco bloco--limitacoes">
+          <summary>Justificativas ({justificativas.length})</summary>
           <ul className="listaSimples">
             {justificativas.map((texto, indice) => (
               <li key={indice}>{texto}</li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
 
       {protocolos.length > 0 && (

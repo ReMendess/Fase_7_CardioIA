@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { listarLeituras } from "../api/endpoints";
-import { Carregando, Falha, Limitacoes, Origem, Vazio } from "../components/Estado";
+import { Carregando, Falha, Limitacoes, Vazio } from "../components/Estado";
 import { useAuth } from "../contexts/AuthContext";
 import { ORIGENS_DO_TRANSPORTE } from "../dominio/catalogo";
 
@@ -62,38 +62,14 @@ export default function Monitoramento() {
       <section className="panel">
         <div className="painelTopo">
           <div>
-            <h2 className="pageTitle">Monitoramento IoT</h2>
-            <p className="helper">
-              Leituras recebidas por <span className="mono">POST /iot/leituras</span>{" "}
-              (firmware da Fase 3 via MQTT ou REST).
-            </p>
+            <h2 className="pageTitle">Monitoramento</h2>
+            <p className="helper">Numeros do dispositivo, nao do paciente.</p>
           </div>
-          <Origem tipo="api" />
-        </div>
-
-        <div className="bloco bloco--aviso" style={{ marginTop: 12 }}>
-          <div className="blocoTitulo">Antes de ler os numeros</div>
-          <ul className="listaSimples">
-            <li>
-              ⚠️ As leituras <strong>nao sao vinculadas a paciente</strong> no contrato
-              §4.2 — sao de dispositivos.
-            </li>
-            <li>
-              ⚠️ O alerta das regras da Fase 3 <strong>nao e persistido</strong>. Ele so
-              vem em <code>avisos</code> na resposta da ingestao; aqui aparecem os sinais
-              brutos.
-            </li>
-            <li>
-              ⚠️ O firmware <strong>nao envia</strong> identificador nem timestamp:{" "}
-              <code>id_dispositivo</code> e exigido pela API e <code>recebido_em</code> e
-              carimbado pelo backend.
-            </li>
-          </ul>
         </div>
 
         <div className="row" style={{ marginTop: 12 }}>
           <input
-            placeholder="Filtrar por id_dispositivo (ex.: esp32-01)"
+            placeholder="Filtrar por dispositivo"
             value={dispositivo}
             onChange={(evento) => setDispositivo(evento.target.value)}
             maxLength={64}
@@ -106,28 +82,19 @@ export default function Monitoramento() {
 
       {!podeLer ? (
         <section className="panel">
-          <p className="helper">
-            Seu papel (<span className="mono">{papel}</span>) nao pode ler telemetria — o
-            contrato §8 exige <span className="mono">OPERADOR</span> ou{" "}
-            <span className="mono">MEDICO</span>.
-          </p>
+          <p className="helper">Sua conta nao tem acesso a telemetria.</p>
         </section>
       ) : (
         <section className="panel">
-          <h3 className="panelTitle">
-            Leituras ({estado.itens.length})
-            <Origem tipo="api" />
-          </h3>
+          <h3 className="panelTitle">Leituras ({estado.itens.length})</h3>
 
           {estado.carregando ? (
             <Carregando texto="Carregando telemetria..." />
           ) : estado.erro ? (
             <Falha erro={estado.erro} aoTentarDeNovo={carregar} />
           ) : !estado.itens.length ? (
-            <Vazio titulo="Nenhuma leitura encontrada">
-              Nada recebido ainda. A ingestao e <code>POST /iot/leituras</code>, aceitando
-              a chave de dispositivo (<code>X-Device-Key</code>) ou um usuario{" "}
-              <span className="mono">OPERADOR</span>. Use o exemplo abaixo.
+            <Vazio titulo="Nenhuma leitura recebida">
+              Nada chegou ainda. As leituras sao enviadas pelo dispositivo.
             </Vazio>
           ) : (
             <div className="list">
@@ -140,24 +107,6 @@ export default function Monitoramento() {
       )}
 
       <Limitacoes itens={estado.limitacoes} />
-
-      <section className="panel">
-        <h3 className="panelTitle">Enviar uma leitura de teste</h3>
-        <p className="helper">
-          A ingestao aceita a chave de dispositivo ou um usuario{" "}
-          <span className="mono">OPERADOR</span> (<span className="mono">MEDICO</span> e{" "}
-          <span className="mono">ADMIN</span> recebem <span className="mono">403</span> —
-          ingestao nao e ato clinico). Exemplo com <code>curl</code>:
-        </p>
-        <pre className="blocoCodigo">{`curl -X POST "$API/api/v1/iot/leituras" \\
-  -H "X-Device-Key: $IOT_DEVICE_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"id_dispositivo":"esp32-teste","origem_transporte":"rest","temperatura":38.9,"bpm":132}'`}</pre>
-        <p className="helper">
-          A resposta traz <code>avisos</code> com o alerta das regras da Fase 3, se houver.
-          Depois de enviar, clique em <strong>Atualizar</strong>.
-        </p>
-      </section>
     </div>
   );
 }

@@ -179,10 +179,8 @@ export default function IndicadoresScreen() {
                   </Text>
                 </View>
                 <Text style={styles.ajuda}>
-                  modelo: {estado.diagnostico.modelo_utilizado ?? "--"}
-                </Text>
-                <Text style={styles.ajuda}>
-                  registrado em {formatarData(estado.avaliacao?.criado_em)}
+                  {estado.diagnostico.modelo_utilizado ?? "--"} ·{" "}
+                  {formatarData(estado.avaliacao?.criado_em)}
                 </Text>
               </>
             ) : (
@@ -211,9 +209,9 @@ export default function IndicadoresScreen() {
               <Text style={styles.ajuda}>Nenhuma leitura recebida ainda.</Text>
             )}
             <Text style={styles.ajuda}>
-              Ultima leitura de {estado.leitura?.id_dispositivo ?? "--"} em{" "}
-              {formatarData(estado.leitura?.recebido_em)}. A telemetria nao e vinculada a
-              paciente no contrato.
+              {estado.leitura?.id_dispositivo ?? "--"} ·{" "}
+              {formatarData(estado.leitura?.recebido_em)}. Numeros do dispositivo, nao do
+              paciente.
             </Text>
           </View>
 

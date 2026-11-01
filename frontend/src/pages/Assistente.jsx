@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { enviarMensagem, historicoDaConversa } from "../api/endpoints";
 import { ErroDaAPI, mensagemDoErro } from "../api/cliente";
-import { Limitacoes, Origem } from "../components/Estado";
+import { Limitacoes } from "../components/Estado";
 import { BolhasDoChat, AvisoDeNaoConfigurado, AvisoDePermissao } from "../components/JanelaDoChat";
-import { useAuth } from "../contexts/AuthContext";
 
 /**
  * Assistente conversacional (Fase 5).
@@ -18,8 +17,6 @@ import { useAuth } from "../contexts/AuthContext";
  * - o `session_id` do Watson nunca chega aqui: o identificador e o `id_conversa`.
  */
 export default function Assistente() {
-  const { usuario } = useAuth();
-
   const [mensagens, setMensagens] = useState([]);
   const [texto, setTexto] = useState("");
   const [idConversa, setIdConversa] = useState(null);
@@ -95,12 +92,8 @@ export default function Assistente() {
         <div className="painelTopo">
           <div>
             <h2 className="pageTitle">Assistente CardioIA</h2>
-            <p className="helper">
-              Assistente virtual (IBM Watson Assistant) · papel{" "}
-              <span className="mono">{usuario?.papel}</span>
-            </p>
+            <p className="helper">Assistente virtual, com o historico desta sessao.</p>
           </div>
-          <Origem tipo="api" />
         </div>
       </section>
 

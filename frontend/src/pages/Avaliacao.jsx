@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { criarAvaliacao } from "../api/endpoints";
-import { Carregando, Origem, Vazio } from "../components/Estado";
+import { Carregando, Vazio } from "../components/Estado";
 import { ResultadoDaAvaliacao, ResultadoDaFalha } from "../components/ResultadoDaAvaliacao";
 import SeletorDePaciente from "../components/SeletorDePaciente";
 import { useAuth } from "../contexts/AuthContext";
@@ -88,18 +88,12 @@ export default function Avaliacao() {
           <h2 className="pageTitle">Nova avaliacao de risco</h2>
           <SeletorDePaciente compacto />
         </div>
-        <p className="helper">
-          Executa o pipeline multiagente da Fase 6 sobre o modelo de pico de risco. As 10
-          features sao o <strong>estado clinico do paciente neste momento</strong>.
-        </p>
+        <p className="helper">As 10 features sao o estado clinico do paciente neste momento.</p>
       </section>
 
       {!podeEscreverClinico ? (
         <section className="panel">
-          <p className="helper">
-            Seu papel nao permite registrar avaliacoes — o contrato exige{" "}
-            <span className="mono">MEDICO</span>.
-          </p>
+          <p className="helper">Sua conta nao pode registrar avaliacoes.</p>
         </section>
       ) : (
         <Formulario
@@ -117,7 +111,7 @@ export default function Avaliacao() {
         />
       )}
 
-      {enviando && <Carregando texto="Executando o pipeline da Fase 6..." linhas={2} />}
+      {enviando && <Carregando texto="Avaliando..." linhas={2} />}
       {falha && <ResultadoDaFalha falha={falha} />}
       {resultado && (
         <ResultadoDaAvaliacao
@@ -147,10 +141,7 @@ function Formulario({
     <section className="panel">
       <form className="stack" onSubmit={enviar}>
         <div className="painelTopo">
-          <h3 className="panelTitle">
-            Features do modelo ({preenchidas}/10)
-            <Origem tipo="preditivo" />
-          </h3>
+          <h3 className="panelTitle">Features do modelo ({preenchidas}/10)</h3>
           <div className="row">
             <button
               type="button"
@@ -170,9 +161,8 @@ function Formulario({
         </div>
 
         <p className="helper">
-          ⚠️ Nao ha valor padrao: campos vazios <strong>nao</strong> sao preenchidos pelo
-          backend. O botao &quot;Preencher exemplo&quot; usa valores{" "}
-          <strong>ficticios</strong>, so para demonstracao.
+          Campos vazios <strong>nao</strong> sao preenchidos pelo backend. O botao
+          &quot;Preencher exemplo&quot; usa valores ficticios.
         </p>
 
         <div className="gradeCampos">

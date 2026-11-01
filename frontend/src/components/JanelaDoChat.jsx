@@ -39,13 +39,8 @@ export function BolhasDoChat({ mensagens, enviando, falha, fimDaLista, aoSugerir
             {PAPEIS_DA_MENSAGEM[mensagem.papel] ?? mensagem.papel}
           </div>
           <div className="bolhaTexto">{mensagem.conteudo}</div>
-          {mensagem.papel === "assistant" && mensagem.fontes && (
-            <div className="bolhaFontes helper">
-              fontes:{" "}
-              {mensagem.fontes.length === 0
-                ? "nenhuma (o provedor nao devolve fontes)"
-                : mensagem.fontes.join(", ")}
-            </div>
+          {mensagem.papel === "assistant" && mensagem.fontes?.length > 0 && (
+            <div className="bolhaFontes helper">fontes: {mensagem.fontes.join(", ")}</div>
           )}
         </div>
       ))}
@@ -82,9 +77,7 @@ export function AvisoDeNaoConfigurado({ falha }) {
         Defina <span className="mono">WATSON_API_KEY</span>,{" "}
         <span className="mono">WATSON_SERVICE_URL</span>,{" "}
         <span className="mono">WATSON_ASSISTANT_ID</span> e{" "}
-        <span className="mono">WATSON_ENVIRONMENT_ID</span> no ambiente do backend. O
-        backend le <strong>somente</strong> do ambiente — ele nao usa os valores default
-        do <span className="mono">IBM_API.py</span> da Fase 5.
+        <span className="mono">WATSON_ENVIRONMENT_ID</span> no ambiente do backend.
       </p>
     </div>
   );
@@ -97,11 +90,6 @@ export function AvisoDePermissao({ mensagem }) {
       <div className="estado estado--falha" role="alert">
         <div className="estadoTitulo">Seu papel nao permite usar o assistente</div>
         <p>{mensagem}</p>
-        <p className="helper">
-          O contrato §8.1 exige <span className="mono">OPERADOR</span> ou{" "}
-          <span className="mono">MEDICO</span>. <span className="mono">ADMIN</span> nao e
-          superusuario e recebe <span className="mono">403</span>.
-        </p>
       </div>
     </section>
   );
