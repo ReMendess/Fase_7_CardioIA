@@ -60,7 +60,7 @@ export default function LoginScreen() {
           <Text style={styles.titulo}>CardioIA</Text>
           <Text style={styles.subtitulo}>Portal clinico · Fase 7</Text>
 
-          <Text style={styles.rotulo}>E-mail</Text>
+          <Text style={styles.rotulo}>E-mail ou usuário</Text>
           <TextInput
             style={styles.entrada}
             value={email}
@@ -68,7 +68,7 @@ export default function LoginScreen() {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
-            placeholder="seu.email@exemplo.local"
+            placeholder="teste ou seu.email@exemplo.local"
             placeholderTextColor={colors.textMuted}
           />
 

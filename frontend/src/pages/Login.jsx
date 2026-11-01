@@ -62,13 +62,20 @@ export default function Login() {
       <form className="stack" onSubmit={enviar}>
         <div>
           <label className="seletorRotulo" htmlFor="email">
-            E-mail
+            E-mail ou usuário
           </label>
+          {/* `type="text"`, nao `type="email"`: o navegador validaria o formato e recusaria
+              um identificador sem "@" — que e justamente o que a conta de demonstracao usa.
+              `inputMode="email"` mantem a arroba e o ponto no teclado do celular. */}
           <input
             id="email"
-            type="email"
+            type="text"
+            inputMode="email"
             autoComplete="username"
-            placeholder="seu.email@exemplo.local"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="teste ou seu.email@exemplo.local"
             value={email}
             onChange={(evento) => setEmail(evento.target.value)}
             required
