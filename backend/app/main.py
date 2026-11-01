@@ -318,6 +318,9 @@ def criar_app(configuracoes: Configuracoes | None = None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.origens_cors,
+        # Regex opcional (vazio = desligado). Existe para hospedagem que gera uma URL por
+        # deploy — a Vercel cria um dominio novo a cada preview.
+        allow_origin_regex=config.cors_origem_regex.strip() or None,
         allow_credentials=False,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type"],

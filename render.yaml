@@ -1,0 +1,59 @@
+# CardioIA — Fase 7 · Blueprint do Render (backend)
+# ---------------------------------------------------------------------------
+# Sobe o backend central a partir da RAIZ do repositorio.
+#
+# Por que a raiz e nao `backend/`: o backend descobre a Fase 6 por caminho relativo
+# (`RAIZ_DA_FASE_7/Fase_6/cardioia_Fase6`). Publicar so a pasta `backend/` faria
+# `POST /avaliacoes` falhar com MODELO_INDISPONIVEL.
+#
+# Como usar: Render -> New -> Blueprint -> aponte para este repositorio.
+# Depois do primeiro deploy, preencha CORS_ORIGENS com a URL da Vercel.
+# ---------------------------------------------------------------------------
+
+services:
+  - type: web
+    name: cardioia-backend
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+
+      # Segredo de assinatura dos JWT. O Render gera um valor aleatorio.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # Chave compartilhada dos dispositivos (cabecalho X-Device-Key).
+      - key: IOT_DEVICE_KEY
+        generateValue: true
+
+      # SQLite no proprio servico. O sistema de arquivos do plano free e efemero —
+      # por isso o backend semeia a conta de demonstracao a cada inicio.
+      - key: DATABASE_URL
+        value: sqlite:///./cardioia.db
+
+      # Origens exatas do frontend. Preencha com o dominio da Vercel.
+      - key: CORS_ORIGENS
+        sync: false
+
+      # Dominios de preview da Vercel (mudam a cada deploy).
+      - key: CORS_ORIGEM_REGEX
+        value: "^https://.*\\.vercel\\.app$"
+
+      # Semear a conta de demonstracao quando o banco estiver vazio.
+      - key: SEMEAR_USUARIO_INICIAL
+        value: "true"
+      - key: USUARIO_INICIAL_EMAIL
+        value: teste
+      - key: USUARIO_INICIAL_SENHA
+        value: senhaTeste23@
+      - key: USUARIO_INICIAL_PAPEL
+        value: MEDICO
+
+      # O plano free tem 512 MB: carregar o modelo no boot gastaria memoria sem uso.
+      - key: AQUECER_MODELO_NO_STARTUP
+        value: "false"

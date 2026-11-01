@@ -106,6 +106,13 @@ class Configuracoes(BaseSettings):
         )
     )
 
+    #: Padrao (regex) de origens adicionais aceitas. **Vazio por padrao**: nao ha
+    #: enfraquecimento implicito. Serve para hospedagem que gera uma URL por deploy —
+    #: a Vercel cria um dominio novo a cada *preview*, e listar cada um seria inviavel.
+    #:
+    #: Sugestao para este projeto: ``^https://.*\.vercel\.app$``
+    cors_origem_regex: str = Field(default="")
+
     # ------------------------------------------------------------------ #
     # Conta de demonstracao (semeada no startup)
     # ------------------------------------------------------------------ #
