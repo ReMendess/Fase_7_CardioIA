@@ -1,0 +1,53 @@
+import csv
+
+arquivo_csv = r"C:\Users\Pichau\OneDrive\Área de Trabalho\Cap2_Desafio_Integrador\Parte_2\frases_risco.csv"
+
+dados = [
+    ["sinto dor no peito e falta de ar", "alto risco"],
+    ["estou com forte pressão no peito há dois dias", "alto risco"],
+    ["tenho falta de ar ao subir escadas", "alto risco"],
+    ["estou com febre alta e dor no corpo", "alto risco"],
+    ["sinto tontura constante e fraqueza", "alto risco"],
+    ["tenho dores intensas no abdômen", "alto risco"],
+    ["estou com náuseas e vômitos frequentes", "alto risco"],
+    ["minha respiração está difícil mesmo em repouso", "alto risco"],
+    ["tenho dor no peito que irradia para o braço", "alto risco"],
+    ["estou com desmaios recentes", "alto risco"],
+    ["estou com dor no peito que piora quando faço esforço físico", "alto risco"],
+    ["tive um leve incômodo nas costas", "baixo risco"],
+    ["sinto dor de cabeça forte e sensibilidade à luz, o que me impede de me concentrar", "alto risco"],
+    ["estou com uma febre e dor no corpo há três dias, e isso tem afetado meu sono e tirado minha fome", "alto risco"],
+    ["sinto falta de ar quando subo escadas", "alto risco"],
+    ["sinto dor no abdômen desde anteontem, principalmente após as refeições", "alto risco"],
+    ["sinto tosse há cinco dias, pior à noite, o que tem atrapalhado meu descanso", "alto risco"],
+    ["sinto tontura há dois dias, especialmente ao levantar", "alto risco"],
+    ["sinto dores nas articulações, dificultando meus movimentos", "alto risco"],
+    ["sinto muita náuseas desde ontem", "alto risco"],
+    ["sinto dor no peito que piora quando faço esforço físico", "alto risco"],
+    ["sinto cansaço há uma semana, mesmo depois de descansar, o que tem prejudicado meu rendimento no trabalho", "alto risco"],
+    ["estou com dor de cabeça leve", "baixo risco"],
+    ["tenho um pouco de cansaço após o trabalho", "baixo risco"],
+    ["estou com leve dor muscular", "baixo risco"],
+    ["tive uma tosse leve ontem", "baixo risco"],
+    ["estou com pequeno desconforto abdominal", "baixo risco"],
+    ["tenho um pouco de tontura ao levantar", "baixo risco"],
+    ["estou com leve febre", "baixo risco"],
+    ["sinto um leve enjoo", "baixo risco"],
+    ["estou com dor leve nas articulações", "baixo risco"],
+    ["sinto um mal estar, mas não sei o que é", "baixo risco"],
+    ["sinto um pouco de dor no peito", "baixo risco"],
+    ["sinto um pouco de dor no abdômen", "baixo risco"],
+    ["sinto um pouco de dor no braço", "baixo risco"],
+    ["sinto um pouco de dor no joelho", "baixo risco"],
+    ["sinto um pouco de dor no tornozelo", "baixo risco"],
+    ["sinto um pouco de dor no quadril", "baixo risco"],
+    ["sinto um pouco de dor no joelho", "baixo risco"],
+    ["estive com pequenas dores nas costas", "baixo risco"],
+]
+
+with open(arquivo_csv, mode="w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["frase", "situacao"])
+    writer.writerows(dados)
+
+print("criado com sucesso.")

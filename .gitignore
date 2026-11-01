@@ -1,0 +1,65 @@
+# CardioIA — Fase 7 · .gitignore da raiz
+# ---------------------------------------------------------------------------
+# Cobre o monorepo inteiro. Os subprojetos mantem os seus proprios .gitignore;
+# este existe para que nenhuma credencial ou artefato de build entre por engano.
+# ---------------------------------------------------------------------------
+
+# --- Segredos: NUNCA versionar valores -------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+*.egg-info/
+
+# --- Banco local -----------------------------------------------------------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# --- Node / Vite / Expo ----------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+build/
+.expo/
+.expo-shared/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# --- Logs ------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Sistema / editor ------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# --- Historico git das fases anteriores ------------------------------------
+# Cada pasta Fase_N era um clone independente do GitHub. O .git foi renomeado
+# para que o conteudo passasse a fazer parte DESTE repositorio (um clone unico
+# entrega tudo). O historico original continua nos repos de origem.
+.git-backup/
+

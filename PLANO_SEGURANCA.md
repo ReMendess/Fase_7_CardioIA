@@ -141,10 +141,44 @@ no broker (que, na Fase 7, poderia alimentar o painel de monitoramento) e custo/
 
 | Fase | Situação atual | Ação na Fase 7 |
 |---|---|---|
-| 5 | Credenciais como **default** em `IBM_API.py` | ✅ **Resolvido no item 7** — ver abaixo |
-| 3 | Credenciais **literais** no firmware e no `server.py` | ✅ **Resolvido no item 5** — ver abaixo |
+| 5 | Credenciais como **default** em `IBM_API.py` | ✅ **Resolvido** — ver abaixo |
+| 3 | Credenciais **literais** no firmware e no `server.py` | ✅ **Resolvido** — ver abaixo |
 | 4 | Sem credenciais | — |
 | 6 | ✅ Já correto | Reaproveitar o padrão |
+
+### Fase 5 — resolvida
+
+`Backend/IBM_API.py` trazia a **chave do Watson**, o *service URL* (com o ID da instância), o
+`ASSISTANT_ID` e o `ENVIRONMENT_ID` como **valores default** de `os.getenv(...)`. O arquivo
+foi sanitizado: as quatro variáveis agora têm default **vazio** e vêm somente do ambiente.
+
+**A chave foi desativada na plataforma.** Isso encerra o risco operacional: o valor exposto
+não autentica mais em lugar nenhum. A correção **C1** passa de *"rotacionar"* para
+*"desativada"*.
+
+O backend da Fase 7 **nunca importou** esse módulo (ver §"Assistente conversacional" do
+`backend/README.md`) — ele constrói o cliente do Watson apenas com valores do ambiente, o
+que é verificado por teste.
+
+### Fase 3 — resolvida
+
+| Arquivo | O que trazia | Situação |
+|---|---|---|
+| `Parte2/codigo_parte2.c` | `mqtt_server`, `mqtt_user`, `mqtt_pass` **literais** | substituídos por marcadores (`SEU_CLUSTER`, `SEU_USUARIO`, `SUA_SENHA`) |
+| `Ir_Alem1/server.py` | `EMAIL_SENHA = "SECRET"` (já era placeholder) + **e-mails pessoais** | e-mails trocados por `seu.email@exemplo.com` / `destino@exemplo.com` |
+
+> ℹ️ O `EMAIL_SENHA` **já era** o placeholder `"SECRET"` — o envio nunca funcionou de fato.
+> A troca dos endereços é por **privacidade**, não por vazamento de credencial.
+
+### Varredura executada antes do commit
+
+| Padrão | Ocorrências |
+|---|---|
+| chave do Watson | **0** |
+| cluster do HiveMQ | **0** |
+| senha do broker | **0** |
+| e-mails pessoais | **0** |
+| pastas `__pycache__` | **0** (o `.pyc` do `IBM_API` continha a chave compilada) |
 
 **Como a Fase 5 foi resolvida (item 7):** o backend **não importa** `IBM_API.py` nem `app.py`.
 O módulo `app/integracao/fase_5.py` constrói o cliente do Watson **apenas** com valores de
@@ -156,9 +190,10 @@ O módulo `app/integracao/fase_5.py` constrói o cliente do Watson **apenas** co
 | `WATSON_SERVICE_URL` · `WATSON_ASSISTANT_ID` · `WATSON_ENVIRONMENT_ID` (IDs reais como default) | **Não usados** — vêm apenas do ambiente |
 | *(nova)* `WATSON_TIMEOUT_SEGUNDOS` | Prazo da chamada, configurável (padrão 30 s, o mesmo `WATSON_TIMEOUT` da Fase 5) |
 
-> ⚠️ **Ação pendente do autor (C1):** **rotacionar** a chave do Watson na plataforma IBM. A
-> rotação é o que torna o valor exposto inútil — o backend já não o utiliza, mas o valor
-> continua no histórico do Git da Fase 5 (a reescrita do histórico **não** foi autorizada, Q9).
+> ✅ **Correção C1 — encerrada:** a chave foi **desativada** na plataforma IBM. O valor exposto
+> não autentica mais em lugar nenhum, e o arquivo de origem foi **sanitizado** (sem default).
+> Não é preciso rotacionar. A reescrita do histórico do Git continua **não autorizada** (Q9) —
+> e agora é irrelevante, porque o valor não tem mais utilidade.
 
 **Como a Fase 3 foi resolvida (item 5):** o serviço Flask `Ir_Alem1/server.py` fica
 **desativado**; as regras passam a viver em `backend/app/regras_iot.py` e a ingestão em
@@ -167,7 +202,7 @@ O módulo `app/integracao/fase_5.py` constrói o cliente do Watson **apenas** co
 | Credencial legada | Situação |
 |---|---|
 | `EMAIL_REMETENTE` · `EMAIL_DESTINO` · `EMAIL_SENHA` (SMTP Gmail, *hardcoded*) | **Não portadas.** A senha na origem é o placeholder `"SECRET"` — o envio nunca funcionou de fato. O alerta é entregue em `avisos` e na trilha de auditoria |
-| `MQTT_HOST` · `MQTT_USER` · `MQTT_PASS` (firmware) | Permanecem no firmware, **inalterado** (as fases anteriores não são editadas). O backend **não** consome MQTT; a ingestão é HTTP |
+| `MQTT_HOST` · `MQTT_USER` · `MQTT_PASS` (firmware) | **Sanitizados**: os três viraram marcadores (`SEU_CLUSTER`, `SEU_USUARIO`, `SUA_SENHA`). O backend **não** consome MQTT; a ingestão é HTTP |
 | *(nova)* `IOT_DEVICE_KEY` | Chave compartilhada dos dispositivos (`X-Device-Key`), **somente em variável de ambiente**, comparada em tempo constante. Sem ela configurada, o caminho da chave é recusado |
 
 > ⚠️ **Limitação declarada:** a chave é única para todos os dispositivos — não há cadastro
@@ -175,8 +210,9 @@ O módulo `app/integracao/fase_5.py` constrói o cliente do Watson **apenas** co
 > `id_dispositivo` do corpo não é confrontado com a chave. Revogar um dispositivo exige
 > rotacionar a chave de todos.
 
-> 🚫 **Os arquivos das Fases 3 e 5 não serão editados nesta etapa.** A correção neles só ocorre com
-> autorização explícita do autor (e envolve, opcionalmente, a etapa 6).
+> ✅ **Arquivos das Fases 3 e 5 sanitizados** com autorização explícita do autor (decisão **D2**):
+> as credenciais literais foram substituídas por marcadores. A lógica das fases **não** foi
+> alterada — só os valores.
 
 ---
 

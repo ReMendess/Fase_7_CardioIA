@@ -1,0 +1,52 @@
+# =============================================================================
+# Cap2_Desafio_Integrador_Cursor_teste — dependências e ambiente
+# =============================================================================
+#
+# Este repositório NÃO é só Python: a aplicação web está em Node/React.
+#
+# --- Node.js — app Ir_Alem/my-react-app ---
+# Pasta: Ir_Alem/my-react-app
+# Comandos:
+#   cd Ir_Alem/my-react-app
+#   npm install
+#   npm run dev
+#
+# Dependências de produção (package.json):
+#   react ^19.2.4
+#   react-dom ^19.2.4
+#   react-router-dom ^7.13.2
+#
+# Dependências de desenvolvimento (package.json):
+#   vite ^8.0.1
+#   @vitejs/plugin-react ^6.0.1
+#   eslint ^9.39.4
+#   @eslint/js ^9.39.4
+#   eslint-plugin-react-hooks ^7.0.1
+#   eslint-plugin-react-refresh ^0.5.2
+#   globals ^17.4.0
+#   @types/react ^19.2.14
+#   @types/react-dom ^19.2.3
+#
+# Ferramenta: Node.js — recomendado 20.x LTS ou 22.x LTS (Vite 8 pede Node atual).
+# Gerenciador: npm (vem com Node).
+#
+# Observação: existe Ir_Alem/package.json com só react-router-dom; evite npm install
+# na pasta Ir_Alem se não for necessário (pode gerar node_modules duplicado).
+#
+# --- Python — notebook Parte_2/Classificador_TF_IDF.ipynb ---
+# Comandos (após instalar as linhas pip abaixo):
+#   pip install -r requirements.txt
+#   jupyter lab
+#   # ou: python -m jupyterlab
+#
+# Interpretador: Python 3.10, 3.11 ou 3.12 (3.13 pode exigir wheels mais novos).
+#
+# =============================================================================
+
+# Notebook TF-IDF / sklearn (Parte_2)
+pandas>=2.1.0,<3
+scikit-learn>=1.4.0,<2
+numpy>=1.26.0,<3
+
+# Execução local do .ipynb
+jupyterlab>=4.0.0,<5
