@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>CardioIA — Fase 7 · Relatório Técnico</title>
+    <style>
+      @page { size: A4; margin: 14mm 14mm 12mm; }
+      * { box-sizing: border-box; }
+      body {
+        font: 10.2pt/1.45 "Segoe UI", Roboto, Arial, sans-serif;
+        color: #0f172a; margin: 0;
+      }
+      h1 { font-size: 19pt; margin: 0 0 2mm; letter-spacing: -0.02em; }
+      h2 {
+        font-size: 12pt; margin: 6mm 0 2mm; padding-bottom: 1mm;
+        border-bottom: 1.5px solid #0ea5e9; color: #0c4a6e;
+      }
+      h3 { font-size: 10.5pt; margin: 4mm 0 1.5mm; color: #0f172a; }
+      p { margin: 0 0 2mm; }
+      ul, ol { margin: 0 0 2mm; padding-left: 5mm; }
+      li { margin-bottom: 0.8mm; }
+      table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm; font-size: 9.2pt; }
+      th, td { border: 1px solid #cbd5e1; padding: 1.4mm 2mm; text-align: left; vertical-align: top; }
+      th { background: #f1f5f9; font-weight: 700; }
+      code, .mono { font-family: Consolas, monospace; font-size: 9pt; }
+      .topo {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        border-bottom: 2.5px solid #0ea5e9; padding-bottom: 3mm; margin-bottom: 4mm;
+      }
+      .sub { color: #475569; font-size: 9.6pt; }
+      .aviso {
+        border: 1px solid #fbbf24; background: #fffbeb; border-radius: 2mm;
+        padding: 2mm 3mm; font-size: 9pt; margin: 0 0 4mm;
+      }
+      .diagrama { width: 100%; height: auto; margin: 2mm 0 3mm; }
+      .duas { display: flex; gap: 4mm; }
+      .duas > div { flex: 1; }
+      footer {
+        margin-top: 5mm; padding-top: 2mm; border-top: 1px solid #cbd5e1;
+        font-size: 8.6pt; color: #64748b;
+      }
+      .quebra { break-before: page; }
+    </style>
+  </head>
+  <body>
+    <div class="topo">
+      <div>
+        <h1>CardioIA — Fase 7</h1>
+        <div class="sub">
+          Relatório técnico · MVP final e funcional da plataforma<br />
+          Arquitetura final: Sensor → MicroPython → Backend Python → APIs de IA → UI
+        </div>
+      </div>
+      <div class="sub" style="text-align: right">
+        FIAP<br />
+        Renan de Oliveira Mendes — RM563145
+      </div>
+    </div>
+
+    <div class="aviso">
+      <strong>Aviso:</strong> os dados do projeto são <strong>sintéticos</strong> e não há
+      validação clínica. Nenhum resultado constitui diagnóstico, prescrição ou recomendação
+      médica. Este documento descreve uma solução acadêmica.
+    </div>
+
+    <h2>1. Arquitetura final</h2>
+
+    <svg class="diagrama" viewBox="0 0 700 452" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="seta" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#0ea5e9" />
+        </marker>
+      </defs>
+
+      <!-- 1. Sensor -->
+      <rect x="180" y="8" width="340" height="46" rx="6" fill="#e0f2fe" stroke="#0284c7" />
+      <text x="350" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#0c4a6e">
+        1. SENSOR — ESP32 (Wokwi)
+      </text>
+      <text x="350" y="43" text-anchor="middle" font-size="9.5" fill="#334155">
+        DHT22 (temperatura corporal) · botão (BPM simulado)
+      </text>
+
+      <line x1="350" y1="54" x2="350" y2="80" stroke="#0ea5e9" stroke-width="2" marker-end="url(#seta)" />
+      <text x="358" y="72" font-size="8.5" fill="#64748b">leitura dos sinais</text>
+
+      <!-- 2. MicroPython -->
+      <rect x="180" y="82" width="340" height="62" rx="6" fill="#dcfce7" stroke="#16a34a" />
+      <text x="350" y="101" text-anchor="middle" font-size="12" font-weight="700" fill="#14532d">
+        2. MICROPYTHON — avaliação na borda
+      </text>
+      <text x="350" y="117" text-anchor="middle" font-size="9.5" fill="#334155">
+        regras locais: temperatura &gt; 38 °C · BPM &gt; 120
+      </text>
+      <text x="350" y="133" text-anchor="middle" font-size="9.5" fill="#334155">
+        feedback imediato: OLED (ssd1306) + LED — sem esperar a rede
+      </text>
+
+      <line x1="350" y1="144" x2="350" y2="170" stroke="#0ea5e9" stroke-width="2" marker-end="url(#seta)" />
+      <text x="358" y="162" font-size="8.5" fill="#64748b">
+        HTTP POST /api/v1/iot/leituras (X-Device-Key)
+      </text>
+
+      <!-- 3. Backend -->
+      <rect x="90" y="172" width="520" height="118" rx="6" fill="#f1f5f9" stroke="#475569" />
+      <text x="350" y="191" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">
+        3. BACKEND PYTHON — núcleo integrador (FastAPI)
+      </text>
+      <text x="350" y="207" text-anchor="middle" font-size="9.5" fill="#334155">
+        autenticação JWT · RBAC · envelope único · auditoria · SQLite
+      </text>
+
+      <rect x="104" y="218" width="116" height="58" rx="5" fill="#fff" stroke="#94a3b8" />
+      <text x="162" y="235" text-anchor="middle" font-size="9.5" font-weight="700">Fase 3</text>
+      <text x="162" y="249" text-anchor="middle" font-size="8.5" fill="#475569">regras de</text>
+      <text x="162" y="261" text-anchor="middle" font-size="8.5" fill="#475569">telemetria</text>
+
+      <rect x="228" y="218" width="116" height="58" rx="5" fill="#fff" stroke="#94a3b8" />
+      <text x="286" y="235" text-anchor="middle" font-size="9.5" font-weight="700">Fase 4</text>
+      <text x="286" y="249" text-anchor="middle" font-size="8.5" fill="#475569">visão</text>
+      <text x="286" y="261" text-anchor="middle" font-size="8.5" fill="#475569">computacional</text>
+
+      <rect x="352" y="218" width="116" height="58" rx="5" fill="#fff" stroke="#94a3b8" />
+      <text x="410" y="235" text-anchor="middle" font-size="9.5" font-weight="700">Fase 5</text>
+      <text x="410" y="249" text-anchor="middle" font-size="8.5" fill="#475569">assistente</text>
+      <text x="410" y="261" text-anchor="middle" font-size="8.5" fill="#475569">conversacional</text>
+
+      <rect x="476" y="218" width="120" height="58" rx="5" fill="#fff" stroke="#94a3b8" />
+      <text x="536" y="235" text-anchor="middle" font-size="9.5" font-weight="700">Fase 6</text>
+      <text x="536" y="249" text-anchor="middle" font-size="8.5" fill="#475569">modelo de risco</text>
+      <text x="536" y="261" text-anchor="middle" font-size="8.5" fill="#475569">+ protocolos</text>
+
+      <line x1="240" y1="290" x2="240" y2="316" stroke="#0ea5e9" stroke-width="2" marker-end="url(#seta)" />
+      <line x1="460" y1="290" x2="460" y2="316" stroke="#0ea5e9" stroke-width="2" marker-end="url(#seta)" />
+      <text x="248" y="308" font-size="8.5" fill="#64748b">JSON (envelope RespostaAPI)</text>
+
+      <!-- 4 e 5. Interfaces -->
+      <rect x="104" y="318" width="272" height="56" rx="6" fill="#ede9fe" stroke="#7c3aed" />
+      <text x="240" y="338" text-anchor="middle" font-size="11.5" font-weight="700" fill="#4c1d95">
+        4. UI WEB — React + Vite
+      </text>
+      <text x="240" y="354" text-anchor="middle" font-size="9" fill="#334155">
+        dashboard · avaliação · histórico · monitoramento · assistente
+      </text>
+      <text x="240" y="367" text-anchor="middle" font-size="8.5" fill="#64748b">
+        publicada na Vercel (CI/CD pelo Git)
+      </text>
+
+      <rect x="388" y="318" width="208" height="56" rx="6" fill="#ede9fe" stroke="#7c3aed" />
+      <text x="492" y="338" text-anchor="middle" font-size="11.5" font-weight="700" fill="#4c1d95">
+        5. UI MOBILE
+      </text>
+      <text x="492" y="354" text-anchor="middle" font-size="9" fill="#334155">
+        React Native + Expo
+      </text>
+      <text x="492" y="367" text-anchor="middle" font-size="8.5" fill="#64748b">
+        login · indicadores · assistente (APK)
+      </text>
+
+      <!-- Ciclo -->
+      <rect x="104" y="388" width="492" height="56" rx="6" fill="#fef9c3" stroke="#ca8a04" />
+      <text x="350" y="406" text-anchor="middle" font-size="9.5" font-weight="700" fill="#713f12">
+        CICLO COMPLETO
+      </text>
+      <text x="350" y="422" text-anchor="middle" font-size="9" fill="#57534e">
+        o sinal captado no dispositivo percorre todas as camadas e vira recomendação clínica
+      </text>
+      <text x="350" y="436" text-anchor="middle" font-size="9" fill="#57534e">
+        na interface — com o alerta antecipado na borda e a decisão auditável no servidor
+      </text>
+    </svg>
+
+    <footer>
+      CardioIA — Fase 7 · Relatório técnico · página 1 de 3 · dados sintéticos, sem validação clínica
+    </footer>
+
+    <div class="quebra"></div>
+
+    <h2>2. Componentes e tecnologias</h2>
+
+    <table>
+      <tr>
+        <th style="width: 18%">Camada</th>
+        <th style="width: 28%">Tecnologia</th>
+        <th>Responsabilidade</th>
+      </tr>
+      <tr>
+        <td><strong>Sensor</strong></td>
+        <td>ESP32 simulado no Wokwi; DHT22; botão; OLED; LED</td>
+        <td>Captura de temperatura corporal e de frequência cardíaca simulada</td>
+      </tr>
+      <tr>
+        <td><strong>Borda</strong></td>
+        <td><strong>MicroPython</strong> (<code>IoT/main.py</code>)</td>
+        <td>Avalia os sinais no próprio dispositivo e sinaliza em OLED e LED sem depender da rede</td>
+      </tr>
+      <tr>
+        <td><strong>Integrador</strong></td>
+        <td><strong>Python / FastAPI</strong> (<code>backend/</code>)</td>
+        <td>Conecta as interfaces aos motores de IA; aplica autenticação, autorização, envelope único, auditoria e persistência</td>
+      </tr>
+      <tr>
+        <td><strong>IA</strong></td>
+        <td>Fase 6 (modelo de risco), Fase 5 (assistente), Fase 4 (visão), Fase 3 (regras de telemetria)</td>
+        <td>Produz a probabilidade de risco, os protocolos aplicáveis e a resposta conversacional</td>
+      </tr>
+      <tr>
+        <td><strong>UI Web</strong></td>
+        <td>React + Vite</td>
+        <td>Dashboard, avaliação de risco, histórico, monitoramento e assistente</td>
+      </tr>
+      <tr>
+        <td><strong>UI Mobile</strong></td>
+        <td>React Native + Expo</td>
+        <td>Login, indicadores cardíacos e assistente, distribuído como APK</td>
+      </tr>
+    </table>
+
+    <h3>2.1 O backend como núcleo integrador</h3>
+
+    <p>
+      O backend é o ponto único de integração. Cada módulo das fases anteriores é acessado
+      por uma camada dedicada em <code>backend/app/integracao/</code>, o que mantém as fases
+      anteriores <strong>intactas</strong> e permite evoluí-las de forma independente:
+    </p>
+
+    <table>
+      <tr>
+        <th style="width: 26%">Módulo</th>
+        <th style="width: 32%">Como é acessado</th>
+        <th>Por quê</th>
+      </tr>
+      <tr>
+        <td>Fase 6 — pipeline e modelo</td>
+        <td>Import controlado, com <code>sys.path</code> e carga tardia</td>
+        <td>É código Python local; a carga do artefato é adiada para não pesar o boot</td>
+      </tr>
+      <tr>
+        <td>Fase 5 — assistente</td>
+        <td>Provedor local (padrão) e adaptador opcional do provedor externo</td>
+        <td>O provedor local responde da base de conhecimento do projeto, sem dependência de rede ou credencial</td>
+      </tr>
+      <tr>
+        <td>Fase 4 — visão</td>
+        <td>Chamada HTTP a um serviço em processo separado</td>
+        <td>Isola o TensorFlow do backend central; serviço fora do ar devolve <code>502</code></td>
+      </tr>
+      <tr>
+        <td>Fase 3 — regras de telemetria</td>
+        <td>Reimplementação fiel, verificada contra o código de origem</td>
+        <td>O serviço legado em Flask foi desativado; as regras vivem em <code>app/regras_iot.py</code></td>
+      </tr>
+    </table>
+
+    <h2>3. Fluxo de dados</h2>
+
+    <ol>
+      <li>
+        <strong>Captura.</strong> O ESP32 lê o DHT22 e conta batimentos por toque no botão. A
+        frequência é derivada do intervalo entre toques — a mesma conta que um oxímetro faz.
+      </li>
+      <li>
+        <strong>Avaliação na borda.</strong> O MicroPython aplica as regras
+        (<code>temperatura &gt; 38</code>, <code>bpm &gt; 120</code>) e reage na hora: o OLED
+        mostra os sinais e o alerta, o LED acende. Nenhuma decisão depende da rede.
+      </li>
+      <li>
+        <strong>Transporte.</strong> A leitura vai por <code>HTTP POST</code> para
+        <code>/api/v1/iot/leituras</code>, autenticada pelo cabeçalho <code>X-Device-Key</code>.
+      </li>
+      <li>
+        <strong>Ingestão.</strong> O backend carimba <code>recebido_em</code>, reavalia os
+        sinais com as mesmas regras, persiste a leitura e devolve o alerta em
+        <code>avisos</code>.
+      </li>
+      <li>
+        <strong>Recomendação.</strong> Ao registrar uma avaliação, o backend executa o
+        pipeline da Fase 6: o modelo calcula a probabilidade de pico de risco e o sistema
+        seleciona os protocolos aplicáveis, com a trilha de execução registrada.
+      </li>
+      <li>
+        <strong>Entrega.</strong> Web e mobile consomem o mesmo contrato e exibem o risco, os
+        indicadores e a orientação — separando o que é dado de dispositivo, resultado
+        preditivo e conteúdo do assistente.
+      </li>
+    </ol>
+
+    <footer>
+      CardioIA — Fase 7 · Relatório técnico · página 2 de 3 · dados sintéticos, sem validação clínica
+    </footer>
+
+    <div class="quebra"></div>
+
+    <h2>4. Segurança e qualidade</h2>
+
+    <div class="duas">
+      <div>
+        <h3>4.1 Controle de acesso</h3>
+        <table>
+          <tr><th>Papel</th><th>Pode</th></tr>
+          <tr><td><code>MEDICO</code></td><td>ler e escrever dado clínico; assistente; visão</td></tr>
+          <tr><td><code>ADMIN</code></td><td>apenas leitura clínica</td></tr>
+          <tr><td><code>OPERADOR</code></td><td>telemetria e assistente</td></tr>
+        </table>
+        <p>
+          A autorização é decidida <strong>no servidor</strong>; as interfaces apenas refletem
+          o que ele permite. O papel gravado no token é reconferido no banco a cada
+          requisição — mudar o papel de alguém invalida os tokens já emitidos.
+        </p>
+      </div>
+      <div>
+        <h3>4.2 Proteção de credenciais</h3>
+        <ul>
+          <li>Senhas apenas como <strong>hash bcrypt</strong> (custo 12).</li>
+          <li>Refresh tokens guardados como <strong>hash SHA-256</strong>, com rotação a cada uso.</li>
+          <li>Segredos <strong>somente</strong> por variável de ambiente; o serviço não sobe sem eles.</li>
+          <li>Credenciais das fases anteriores <strong>sanitizadas</strong> antes da publicação do repositório.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>4.3 Contrato único de resposta</h3>
+
+    <p>
+      Toda resposta — sucesso ou falha — usa o mesmo envelope, com <code>status</code>,
+      <code>dados</code>, <code>avisos</code>, <code>limitacoes</code> e <code>erros</code>.
+      O erro carrega um <strong>código estável</strong>, não apenas texto livre, o que
+      permite à interface reagir de forma precisa: <code>NAO_AUTENTICADO</code>,
+      <code>NAO_AUTORIZADO</code>, <code>NAO_CONFIGURADO</code>,
+      <code>ERRO_DE_SERVICO_DE_VISAO</code>.
+    </p>
+
+    <h2>5. Validação executada</h2>
+
+    <table>
+      <tr>
+        <th style="width: 34%">Verificação</th>
+        <th style="width: 30%">Resultado</th>
+        <th>O que cobre</th>
+      </tr>
+      <tr>
+        <td>Suíte automatizada do backend</td>
+        <td><strong>636 testes aprovados</strong></td>
+        <td>Contratos, persistência, autenticação, integração com as fases 3 a 6, CORS</td>
+      </tr>
+      <tr>
+        <td>Integração ponta a ponta (smoke)</td>
+        <td><strong>65 verificações, 0 falhas</strong></td>
+        <td>Fluxo real nos três papéis, contra o backend em execução</td>
+      </tr>
+      <tr>
+        <td>Pipeline da Fase 6 pelo cliente</td>
+        <td>probabilidade <strong>0,99</strong> · <code>pico_de_risco</code></td>
+        <td>O modelo é carregado e executado de fato, não simulado</td>
+      </tr>
+      <tr>
+        <td>Regra da Fase 3 na ingestão</td>
+        <td><code>FEBRE DETECTADA</code></td>
+        <td>Leitura de 38,9 °C aciona o alerta correto</td>
+      </tr>
+      <tr>
+        <td>Indisponibilidade de serviço externo</td>
+        <td><code>502</code> com mensagem acionável</td>
+        <td>A interface informa a causa em vez de falhar em silêncio</td>
+      </tr>
+      <tr>
+        <td>Empacotamento do aplicativo</td>
+        <td>219 módulos, 413 KB</td>
+        <td>Todas as telas e imports resolvem</td>
+      </tr>
+      <tr>
+        <td>Análise estática do frontend</td>
+        <td>0 erros, 0 avisos</td>
+        <td>Convenções e boas práticas de React</td>
+      </tr>
+    </table>
+
+    <h2>6. Limitações declaradas</h2>
+
+    <ul>
+      <li>
+        <strong>Dados sintéticos, sem validação clínica.</strong> O modelo foi treinado em base
+        acadêmica; a probabilidade é do <em>episódio assistencial</em>, não um prognóstico
+        individual.
+      </li>
+      <li>
+        <strong>Temperatura é a feature de menor confiança.</strong> O gerador de treino usou
+        distribuição de temperatura ambiente, enquanto a feature representa temperatura
+        corporal — o valor cai na cauda da distribuição. A interface marca isso.
+      </li>
+      <li>
+        <strong>A telemetria não é vinculada a paciente.</strong> O contrato associa a leitura
+        ao <em>dispositivo</em>; as interfaces rotulam os sinais vitais como tal.
+      </li>
+      <li>
+        <strong>O alerta das regras não é persistido.</strong> É derivado dos sinais e
+        devolvido em <code>avisos</code> na ingestão.
+      </li>
+      <li>
+        <strong>O assistente orienta, não diagnostica.</strong> As respostas encaminham para
+        atendimento de emergência diante de sinais de alerta e não substituem avaliação
+        profissional.
+      </li>
+      <li>
+        <strong>A frequência cardíaca é simulada por botão</strong>, conforme o escopo do
+        trabalho — não há sensor de pulso no circuito.
+      </li>
+    </ul>
+
+    <h2>7. Conclusão</h2>
+
+    <p>
+      A plataforma integra os módulos das fases anteriores em um ecossistema funcional, no
+      qual um sinal captado no dispositivo percorre avaliação de borda, ingestão,
+      processamento por modelos de IA e chega às interfaces web e mobile como recomendação
+      clínica. A arquitetura foi desenhada para <strong>não depender de credenciais de
+      terceiros</strong>: cada serviço externo que normalmente exigiria conta tem um
+      equivalente dentro do próprio projeto, o que mantém a solução executável e
+      reproduzível.
+    </p>
+
+    <footer>
+      CardioIA — Fase 7 · Relatório técnico · página 3 de 3 · dados sintéticos, sem validação clínica
+    </footer>
+  </body>
+</html>
+
+
+
