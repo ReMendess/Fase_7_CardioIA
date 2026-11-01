@@ -257,12 +257,25 @@ async def _ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
 
     # Cache do modelo (M3). Best-effort de proposito: se o artefato ou o SDK falharem, o
     # servidor **sobe** (M1) e a requisicao que precisar do modelo reporta o erro.
-    # Executado em thread (`to_thread`): o import do pipeline leva ~6 s e bloquearia o
-    # event loop se rodasse direto no lifespan.
+    #
+    # O aquecimento roda em **segundo plano** (`create_task` + `to_thread`): o import do
+    # pipeline leva dezenas de segundos e, se bloqueasse o lifespan, o `/health` demoraria
+    # a responder — em hospedagem gratuita o health check decide se o deploy sobe. Assim o
+    # servidor fica disponivel de imediato e o modelo termina de carregar logo depois.
     cache: CacheDoModelo | None = getattr(app.state, "cache_do_modelo", None)
     if cache is not None and config.aquecer_modelo_no_startup:
-        if await asyncio.to_thread(cache.aquecer, config):
-            registrador.info("cache do modelo aquecido | pasta=%s", config.pasta_da_fase_6)
+
+        async def _aquecer_o_modelo() -> None:
+            if await asyncio.to_thread(cache.aquecer, config):
+                registrador.info("cache do modelo aquecido | pasta=%s", config.pasta_da_fase_6)
+            else:
+                registrador.warning(
+                    "modelo NAO aquecido — a primeira avaliacao pagara o import da Fase 6"
+                )
+
+        # A referencia fica no `app.state` para a tarefa nao ser coletada pelo GC.
+        app.state.tarefa_de_aquecimento = asyncio.create_task(_aquecer_o_modelo())
+        registrador.info("aquecimento do modelo iniciado em segundo plano")
     elif cache is not None:
         registrador.info(
             "cache do modelo NAO aquecido no startup (AQUECER_MODELO_NO_STARTUP=false)"

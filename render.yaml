@@ -54,6 +54,8 @@ services:
       - key: USUARIO_INICIAL_PAPEL
         value: MEDICO
 
-      # O plano free tem 512 MB: carregar o modelo no boot gastaria memoria sem uso.
+      # O aquecimento roda em SEGUNDO PLANO: o /health responde de imediato (o health check
+      # do Render decide se o deploy sobe) e o modelo fica pronto logo depois. Com o plano
+      # free (512 MB), desligar o aquecimento troca memoria por latencia na 1a avaliacao.
       - key: AQUECER_MODELO_NO_STARTUP
-        value: "false"
+        value: "true"

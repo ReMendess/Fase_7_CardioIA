@@ -422,14 +422,24 @@ async function principal() {
       403
     );
   } else {
-    // Sem Watson configurado -> 501 (estado declarado, nao defeito).
-    // Com credencial invalida -> 502 (o provedor recusou).
-    await passoQueFalha(
-      "POST /chat sem Watson configurado devolve 501 NAO_CONFIGURADO",
-      () => enviarMensagem("O que e insuficiencia cardiaca?"),
-      ["NAO_CONFIGURADO"],
-      501
-    );
+    // O provedor local responde sempre; o Watson entra quando configurado. O contrato
+    // da resposta e o mesmo nos dois casos.
+    try {
+      const envelope = await enviarMensagem("Estou com dor no peito");
+      const dados = envelope.dados ?? {};
+      passo("POST /chat responde", String(envelope.status).startsWith("CONCLUIDO"),
+        `status=${envelope.status}`);
+      passo("a resposta traz id_conversa e texto",
+        Boolean(dados.id_conversa && dados.resposta),
+        `conversa=${dados.id_conversa}`);
+      passo("`fontes` e sempre [] (nota N6)", Array.isArray(dados.fontes) && dados.fontes.length === 0);
+      passo("sinal de alerta encaminha para emergencia",
+        String(dados.resposta).includes("192"));
+      passo("'limitacoes' vem preenchida",
+        Array.isArray(envelope.limitacoes) && envelope.limitacoes.length > 0);
+    } catch (falha) {
+      passo("POST /chat", false, mensagemDoErro(falha));
+    }
   }
 
   // --- 10. visao computacional ------------------------------------------- #

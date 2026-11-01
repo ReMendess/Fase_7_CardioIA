@@ -95,7 +95,9 @@ export function criarAvaliacao({
       modo,
     },
     // O modo `real` chama o provedor LLM: o prazo tem de ser maior que o padrao.
-    timeout: modo === "real" ? 120000 : 60000,
+    // A 1a avaliacao de um servidor recem-iniciado paga o import da Fase 6 (sklearn,
+    // pandas, joblib) — por isso o prazo e generoso tambem no modo simulado.
+    timeout: modo === "real" ? 180000 : 120000,
   });
 }
 

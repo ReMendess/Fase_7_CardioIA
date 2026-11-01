@@ -866,3 +866,93 @@ validado contra o backend real e documentado. **Nenhum arquivo das Fases 1 a 6 f
 modificado.** A única alteração no backend foi o padrão de `CORS_ORIGENS` (§11.6).*
 
 
+
+---
+
+## 12. Fase 7 — MVP final e funcional (entrega)
+
+### 12.1 Escopo entregue
+
+A Etapa D integrou web e backend. Esta seção registra a **entrega final da Fase 7**: o MVP
+completo, do sinal captado no dispositivo até a recomendação clínica na interface.
+
+| Bloco | Pasta | Estado |
+|---|---|---|
+| Núcleo integrador Python | `backend/` | ✅ **636 testes** |
+| Aplicação web (React + Vite) | `frontend/` | ✅ lint e build limpos |
+| Aplicativo (React Native + Expo) | `mobile/` | ✅ bundle validado |
+| Firmware MicroPython + Wokwi | `IoT/` | ✅ sintaxe e circuito validados |
+| Relatório técnico | `docs/RELATORIO_FASE7.html` | ✅ imprimível em PDF |
+| Guia de publicação | `DEPLOY.md` | ✅ |
+
+### 12.2 Decisão de arquitetura: nenhuma chave de serviço
+
+O autor determinou que a entrega **não dependa de credenciais de terceiros**. Cada serviço
+externo foi substituído por um equivalente dentro do projeto:
+
+| Serviço | Substituto | Onde |
+|---|---|---|
+| IBM Watson Assistant | **Provedor local** de conhecimento (Python puro) | `app/integracao/assistente_local.py` |
+| OpenAI (pipeline) | **Modo simulado** (padrão) com o modelo treinado | Fase 6 |
+| Broker MQTT / HiveMQ | **HTTP direto** do dispositivo ao backend | `IoT/main.py` |
+| Banco gerenciado | **SQLite** com conta semeada no startup | `app/main.py` |
+| SMTP | Fora de escopo | — |
+
+A documentação descreve o provedor local como **arquitetura padrão**, não como contorno: o
+adaptador do Watson continua disponível e é usado quando configurado.
+
+### 12.3 Bloqueadores encontrados e corrigidos
+
+| # | Problema | Correção |
+|---|---|---|
+| B1 | `requirements.txt` não declarava `scikit-learn`, `pandas`, `numpy` e `joblib` — o pipeline da Fase 6 falharia no deploy | dependências declaradas |
+| B2 | `python-multipart` não declarado — `POST /imagens` quebraria no deploy | declarado |
+| B3 | As pastas `Fase_1`…`Fase_6` eram **repositórios git aninhados**: o `git add` criava *gitlinks* e o tutor clonaria pastas **vazias** | `.git` renomeado para `.git-backup` (reversível); o conteúdo passou a fazer parte do monorepo |
+| B4 | Sem `.gitignore` na raiz, artefatos e segredos entrariam por engano | `.gitignore` criado |
+| B5 | O CORS não cobria os domínios de *preview* da Vercel (que mudam a cada deploy) | `CORS_ORIGEM_REGEX` opcional |
+| B6 | O assistente local citava limiares (37,8 °C / 100 bpm) diferentes dos canônicos do projeto | alinhado a **38 °C / 120 bpm** (`app/regras_iot.py`) |
+
+### 12.4 Sanitização das fases anteriores
+
+| Arquivo | O que trazia | Situação |
+|---|---|---|
+| `Fase_5/.../IBM_API.py` | chave do Watson e 3 identificadores como **default** | removidos; **chave desativada** na plataforma |
+| `Fase_3/.../codigo_parte2.c` | `mqtt_server`, `mqtt_user`, `mqtt_pass` literais | substituídos por marcadores |
+| `Fase_3/.../server.py` | e-mails pessoais | substituídos por endereços de exemplo |
+| `__pycache__` (14 pastas) | o `.pyc` do `IBM_API` continha a chave compilada | removidas |
+
+Varredura final: **0 ocorrências** de chave, cluster, senha de broker ou e-mail pessoal.
+
+### 12.5 Validação
+
+| Verificação | Resultado |
+|---|---|
+| Suíte do backend | **636 testes aprovados** |
+| Lint do frontend | 0 erros, 0 avisos |
+| Build do frontend | 46 módulos |
+| Smoke da integração (3 papéis) | **65 verificações, 0 falhas** |
+| Pipeline da Fase 6 pelo cliente | probabilidade 0,99 · `pico_de_risco` |
+| Regra da Fase 3 na ingestão | `FEBRE DETECTADA` com 38,9 °C |
+| Bundle do aplicativo | 219 módulos, 413 KB |
+| Sintaxe do firmware MicroPython | OK |
+| Circuito do Wokwi | 6 componentes, 14 conexões |
+
+### 12.6 Pendências de publicação (sem código)
+
+| # | Pendência | Onde |
+|---|---|---|
+| 1 | Publicar o backend no Render | `DEPLOY.md` §1 |
+| 2 | Publicar o frontend na Vercel | `DEPLOY.md` §2 |
+| 3 | Buildar o APK no EAS | `DEPLOY.md` §3 |
+| 4 | Publicar o projeto Wokwi e obter o link | `IoT/README.md` §6 |
+| 5 | Preencher os links no `README.md` raiz | §1 do README |
+| 6 | Conceder acesso do repositório ao tutor | GitHub |
+| 7 | Imprimir o relatório em PDF | `docs/RELATORIO_FASE7.html` |
+
+> Nenhuma delas exige escrever código — são ações de publicação.
+
+---
+
+*Documento de acompanhamento da Fase 7. O **MVP final** está implementado, validado e
+documentado: do sensor ao assistente, sem depender de credenciais de terceiros.*
+
