@@ -6,7 +6,7 @@ import NivelDeRisco from "../components/NivelDeRisco";
 import SeletorDePaciente from "../components/SeletorDePaciente";
 import { useAuth } from "../contexts/AuthContext";
 import { usePacientes } from "../contexts/PacienteContext";
-import { STATUS_DA_RESPOSTA } from "../dominio/catalogo";
+import { ORIGENS_DO_TRANSPORTE, STATUS_DA_RESPOSTA } from "../dominio/catalogo";
 
 /**
  * Dashboard clinico.
@@ -185,7 +185,12 @@ export default function Dashboard() {
             </div>
             <p className="helper" style={{ marginTop: 10 }}>
               {ultimaLeitura.id_dispositivo} · {formatarData(ultimaLeitura.recebido_em)} ·{" "}
-              <Link to="/monitoramento">ver todas as leituras</Link>
+              {/* A origem precisa aparecer aqui: uma leitura semeada para demonstracao
+                  chega com `origem_transporte = "simulado"` e nao pode ser lida como
+                  medicao de dispositivo real. */}
+              {ORIGENS_DO_TRANSPORTE[ultimaLeitura.origem_transporte] ??
+                ultimaLeitura.origem_transporte}{" "}
+              · <Link to="/monitoramento">ver todas as leituras</Link>
             </p>
           </>
         )}

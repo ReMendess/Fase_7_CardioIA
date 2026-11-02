@@ -121,11 +121,15 @@ Princípio que orienta as telas: **o dado primeiro, a ressalva a um clique.**
 | Protocolos e indicadores deterministas | **visíveis** | é o conteúdo acionável da resposta |
 | Risco e sinais vitais | **visíveis** | é o motivo de a tela existir |
 
-Dois ajustes acompanham esse princípio:
+Três ajustes acompanham esse princípio:
 
 - **Selos de origem removidos.** Cada bloco trazia um selo "Dado da API" / "Resultado
   preditivo". A informação continua no README e em `CONTRATOS_API.md`; na tela, o rótulo da
   própria seção já diz de onde vem o número. Repetir o selo em cada painel era ruído.
+- **A origem do transporte permanece visível** (`REST`, `MQTT`, `Simulado`) no Dashboard e
+  no Monitoramento. Diferente do selo anterior, esta **muda a leitura do número**: uma
+  leitura semeada para demonstração chega com `origem_transporte = "simulado"` e não pode
+  ser lida como medição de dispositivo real (ver `backend/README.md`).
 - **Sinais de escala e confiança das features** (8 das 10 não são medições individuais do
   paciente) passaram para o **tooltip** do cartão. O selo `fora da faixa` permanece visível,
   porque esse muda a leitura do número.
