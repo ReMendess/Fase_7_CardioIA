@@ -121,6 +121,15 @@ ainda não existe no `app.json`) — responda que sim. Ao final ele devolve um *
 > ℹ️ O `buildType: "apk"` é o que gera um arquivo **instalável direto**. O perfil
 > `production` gera `aab` (formato da Play Store), que **não** instala por download.
 
+> ⚠️ **Reinstalar o mesmo `versionCode` não avisa nada.** O Android aceita a atualização
+> silenciosamente, então é fácil concluir que "não mudou nada" quando na verdade o APK
+> antigo continua instalado. Duas formas de não se enganar:
+>
+> - baixe sempre pela **página do build novo** — o nome do arquivo é um hash, então é
+>   diferente a cada build;
+> - suba o `versionCode` no `app.json` a cada rodada e confira em
+>   *Configurações → Apps → CardioIA*.
+
 ---
 
 ## 5. Conta de demonstração
