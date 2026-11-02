@@ -1,14 +1,3 @@
-# CardioIA — IoT em MicroPython (ESP32 / Wokwi)
-
-Nó de captura da Fase 7. Le **temperatura corporal** (DHT22) e **frequência cardíaca
-simulada** (botão), avalia os sinais **no próprio dispositivo** e envia a leitura para o
-backend central.
-
-> **Por que MicroPython:** a captura e o processamento saíram de C/C++ (Fase 3) para
-> MicroPython, que roda em microcontroladores de alto desempenho (ESP32, Raspberry Pi Pico)
-> com o mesmo código — sem toolchain de compilação e sem regravar firmware a cada ajuste.
-
----
 
 ## 1. Arquitetura
 
@@ -45,30 +34,8 @@ chega ao backend e aparece na interface.
 
 ---
 
-## 4. Como o BPM é simulado
 
-Não há sensor de pulso — o enunciado pede **batimentos simulados**. Cada toque no botão
-representa um batimento, e o intervalo entre toques define a frequência:
-
-```
-bpm = 60000 / intervalo_entre_toques_ms
-```
-
-É a mesma conta que um oxímetro faz. Sem toques por 6 segundos, a frequência volta ao
-repouso (72 bpm). Toques mais rápidos que 120 ms são tratados como repique do contato, não
-como batimento.
-
-| Como tocar | BPM aproximado | Resultado |
-|---|---|---|
-| devagar | ~75 | sinais normais |
-| rápido | ~150 | **TAQUICARDIA DETECTADA** |
-
-No Wokwi o DHT22 tem um controle deslizante de temperatura. **Acima de 38 °C** dispara
-**FEBRE DETECTADA** — e a febre tem prioridade sobre a taquicardia, igual ao backend.
-
----
-
-## 5. Regras de alerta
+## 4. Regras de alerta
 
 Os limiares são **os mesmos** de `backend/app/regras_iot.py`:
 
@@ -83,7 +50,7 @@ backend reavalia e é quem persiste.
 
 ---
 
-## 6. Como rodar no Wokwi
+## 5. Como rodar no Wokwi
 
 1. Abra **https://wokwi.com/projects/new/esp32-micropython**.
 2. Substitua o conteúdo de `main.py` pelo arquivo `IoT/main.py`.
@@ -100,57 +67,3 @@ CHAVE_DO_DISPOSITIVO = "o mesmo valor de IOT_DEVICE_KEY no backend"
 
 **O que deve acontecer:** o OLED mostra temperatura e BPM, o LED acende no alerta, e a
 leitura aparece em `GET /api/v1/iot/leituras` — e no dashboard do frontend.
-
-> 💡 A biblioteca do display (`ssd1306`) é instalada automaticamente pelo `mip` na primeira
-> execução. Se o display não aparecer, o programa continua com o LED — o OLED é opcional de
-> propósito, para que um display ausente não derrube a coleta.
-
----
-
-## 7. Envio ao backend
-
-O firmware da Fase 3 publicava em **MQTT** (broker HiveMQ + Node-RED). Aqui o envio é
-**HTTP direto** para o backend da Fase 7:
-
-| Campo | Valor |
-|---|---|
-| Rota | `POST /api/v1/iot/leituras` |
-| Autenticação | cabeçalho `X-Device-Key` |
-| Corpo | `id_dispositivo`, `origem_transporte`, `temperatura`, `bpm`, `payload_json` |
-
-Elimina o broker e a conta de terceiro, e usa a ingestão REST que o backend já expõe. O
-`id_dispositivo` é obrigatório: **o firmware da Fase 3 não enviava identificador** — a API
-exige, então ele é definido no dispositivo.
-
-> ⚠️ O firmware **não envia timestamp**: o backend carimba `recebido_em`. Isso está no
-> contrato (`CONTRATOS_API.md` §4.2) e evita confiar no relógio do dispositivo.
-
-### 7.1 Enviar uma leitura sem o simulador
-
-Útil para testar a ingestão antes de montar o circuito. Aceita a chave de dispositivo **ou**
-um usuário `OPERADOR` (`MEDICO` e `ADMIN` recebem `403` — ingestão não é ato clínico):
-
-```bash
-curl -X POST "$API/api/v1/iot/leituras" \
-  -H "X-Device-Key: $IOT_DEVICE_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"id_dispositivo":"esp32-teste","origem_transporte":"rest","temperatura":38.9,"bpm":132}'
-```
-
-A resposta traz `avisos` com o alerta das regras, quando houver. Com `temperatura = 38.9`
-o esperado é **`FEBRE DETECTADA`**.
-
-
----
-
-## 8. Verificação
-
-```powershell
-# a leitura chegou?
-$h = @{ Authorization = "Bearer $token" }
-Invoke-RestMethod "https://SEU-BACKEND/api/v1/iot/leituras?limite=5" -Headers $h |
-  Select-Object -ExpandProperty dados | Format-Table id_dispositivo, temperatura, bpm, recebido_em
-```
-
-Se a ingestão aceitar, a resposta traz `avisos` com o alerta — por exemplo
-`FEBRE DETECTADA` quando a temperatura passa de 38 °C.

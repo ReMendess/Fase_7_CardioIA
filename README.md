@@ -1,26 +1,44 @@
 # CardioIA — Fase 7
 
-MVP final e funcional da plataforma **CardioIA**: um ecossistema que vai do **sinal captado
-no dispositivo** até a **recomendação clínica exibida na interface**, integrando os módulos
-desenvolvidos nas fases anteriores sob um contrato único.
+<p align="center">
+  <a href="https://www.fiap.com.br/"><img src="assets/logo-fiap.png" alt="FIAP" width="30%"></a>
+</p>
 
-> ⚠️ **Aviso acadêmico.** Os dados do projeto são **sintéticos** e não há validação clínica.
-> Nenhum resultado constitui diagnóstico, prescrição ou recomendação médica.
+<p align="center">
+  <strong>CardioIA</strong><br>
+</p>
 
+Fase final e solução funcional do **CardioIA**: Construimos um ecossistema que vai do sinal captado
+até a recomendação exibida na interface, juntando todos os módulos
+desenvolvidos nas fases anteriores sob uma única interface e solução.
+
+> *Os dados do projeto são **sintéticos**.
 ---
 
-## 1. Links da entrega
+## Autor
+
+| Nome | RM |
+|---|---|
+| [Renan de Oliveira Mendes](https://www.linkedin.com/in/renanmendes26/) | RM563145 |
+
+## Vídeo
+
+- **Fase 7:** https://youtu.be/v-__IQXEDMA
+- **App:** 
+---
+
+## Links da entrega
 
 | Item | Endereço |
 |---|---|
-| **Aplicação Web (Vercel)** | _preencher após o deploy_ → ver [`DEPLOY.md`](DEPLOY.md) §2 |
-| **Backend (Render)** | _preencher após o deploy_ → ver [`DEPLOY.md`](DEPLOY.md) §1 |
-| **APK (Expo / EAS)** | _preencher com o link ou QR Code_ → ver [`DEPLOY.md`](DEPLOY.md) §3 |
-| **Projeto Wokwi (MicroPython)** | _preencher com o link público_ → ver [`IoT/README.md`](IoT/README.md) §6 |
-| **Relatório técnico (PDF)** | [`docs/RELATORIO_FASE7.html`](docs/RELATORIO_FASE7.html) → imprimir em PDF |
+| **Aplicação Web (Vercel)** | https://fase-7-cardio-ia.vercel.app |
+| **Backend (Render)** | https://cardioia-backend-z8pz.onrender.com |
+| **APK (Expo / EAS)** | https://expo.dev/accounts/remendess/projects/cardioia/builds/b3492405-08d4-4a15-a4dd-a29b9f5010ec|
+| **Relatório técnico (HTML e PDF)** | docs/RELATORIO_FASE7.html |
 
-> Os campos acima são preenchidos **após** a execução do `DEPLOY.md`. Nenhum deles exige
-> chave de API — veja a seção 3.
+
+## QR Code para Download do App - Android
+<img src="/assets/QR-Code.png" widht="80%">
 
 ### Conta de demonstração
 
@@ -31,6 +49,46 @@ desenvolvidos nas fases anteriores sob um contrato único.
 | Papel | `MEDICO` |
 
 ---
+
+## 1. Solução
+
+A solução funciona com um backend rodando hospedado no Render e o Frontend na Vercel.
+Utilizando tudo desenvolvido das outras fases o CardioAI tem de inicio uma tela de login, com autenticação
+
+
+<img src="/assets/login.png" widht="80%">
+
+Após acessar, a primeira página é o Dashboard, que mostra cards e resumos estruturados por pacientes.
+Mostrando informações de risco, avaliações e indicadores cardiacos.
+
+<img src="/assets/dashboard.png" widht="80%">
+
+
+Na aba Pacientes podemos cadastrar pacientes e salvar no banco de dados.
+
+<img src="/assets/Pacientes.png" widht="80%">
+
+A página de avaliação é a mais extensa e é onde estão:
+
+- Ficha do paciente
+- Modelo de classificação treinado operando em cima dos dados do paciente
+- Agentes de análise de risco e de acionamento de protocolos
+
+
+<img src="/assets/modelo.png" widht="80%">
+
+<img src="/assets/agentes.png" widht="80%">
+
+<img src="/assets/protocolos.png" widht="80%">
+
+
+Na página de Monitoramento são mostrados os dados dos sensores - Wokwi
+
+<img src="/assets/monitoramento.png" widht="80%">
+
+A página de Assistente é o agente conversacional por IA, que opera em cima da abordagem de RAG dos dados do paciente e com guardrails de segurança.
+
+<img src="/assets/assistente.png" widht="80%">
 
 ## 2. Arquitetura final
 
@@ -72,28 +130,10 @@ desenvolvidos nas fases anteriores sob um contrato único.
 
 ---
 
-## 3. Nenhuma chave de API
 
-O projeto **não depende de nenhum serviço de terceiro com credencial**. O que normalmente
-exigiria uma conta foi resolvido por um provedor equivalente dentro do próprio projeto:
+## 3. Como executar localmente
 
-| O que exigiria credencial | Como está resolvido |
-|---|---|
-| **IBM Watson Assistant** (Fase 5) | **Provedor local** — responde da base de conhecimento do projeto, em Python puro. O adaptador do Watson continua disponível e é usado quando configurado |
-| **OpenAI** (pipeline da Fase 6) | **Modo simulado** (padrão): o pipeline executa com o modelo treinado, sem provedor de linguagem |
-| **TensorFlow / serviço da Fase 4** | O endpoint existe e responde `502` quando o serviço não está no ar; a UI não o expõe |
-| **Broker MQTT (HiveMQ)** | O dispositivo envia por **HTTP direto** ao backend |
-| **SMTP** (Fase 3) | Fora de escopo |
-| **Banco gerenciado** | **SQLite** no próprio serviço, com a conta de demonstração semeada no startup |
-
-Os únicos valores obrigatórios são segredos que **você gera** no deploy: `JWT_SECRET` e
-`IOT_DEVICE_KEY`.
-
----
-
-## 4. Como executar localmente
-
-### 4.1 Backend
+### 3.1 Backend
 
 ```powershell
 cd backend
@@ -112,7 +152,7 @@ Invoke-RestMethod http://127.0.0.1:8000/api/v1/health
 
 Documentação interativa da API: `http://127.0.0.1:8000/docs`
 
-### 4.2 Frontend web
+### 3.2 Frontend web
 
 ```powershell
 cd frontend
@@ -120,7 +160,7 @@ npm install
 npm run dev            # http://localhost:5173
 ```
 
-### 4.3 App mobile
+### 3.3 App mobile
 
 ```powershell
 cd mobile
@@ -128,14 +168,14 @@ npm install
 npx expo start
 ```
 
-### 4.4 Firmware (Wokwi)
+### 3.4 Wokwi
 
 Abra o projeto no Wokwi e substitua `main.py` e `diagram.json` pelos arquivos de `IoT/`.
 Instruções completas em [`IoT/README.md`](IoT/README.md).
 
 ---
 
-## 5. Estrutura do repositório
+## 4. Estrutura do repositório
 
 ```text
 Fase_7/
@@ -154,26 +194,23 @@ Fase_7/
 
 ---
 
-## 6. Entregáveis × requisitos do enunciado
+## 5. Entregáveis 
 
-| # | Requisito | Onde | Estado |
-|---|---|---|---|
-| 1 | Web publicada na Vercel, com CI/CD | `frontend/vercel.json` + `DEPLOY.md` §2 | ⬜ publicar |
-| 2 | `vercel.json` com rotas SPA | `frontend/vercel.json` | ✅ |
-| 3 | `app.json` com `android.package` em domínio invertido | `mobile/app.json` → `br.com.fiap.cardioiarenan` | ✅ |
-| 4 | `eas.json` com perfil `preview` | `mobile/eas.json` | ✅ |
-| 5 | `.apk` funcional | `npm run build:apk` em `mobile/` | ⬜ buildar |
-| 6 | Repositório privado compartilhado com o tutor | GitHub `ReMendess/Fase_7_CardioIA` | ⬜ conceder acesso |
-| 7 | Pasta `Backend/` com os scripts Python de integração | `backend/` | ✅ |
-| 8 | Pasta `IoT/` com o script `.py` MicroPython | `IoT/main.py` | ✅ |
-| 9 | Projeto Wokwi público em MicroPython com LED/OLED | `IoT/diagram.json` | ⬜ publicar |
-| 10 | `README.md` com URL, QR do APK, prints e instruções | este arquivo + `DEPLOY.md` | ⬜ preencher |
-| 11 | Relatório técnico PDF (≤ 5 páginas) com o diagrama | `docs/RELATORIO_FASE7.html` | ✅ imprimir |
-| 12 | Refino de UX dos indicadores de risco | `frontend/` + `mobile/` | ✅ |
-| 13 | Validação do login e dos dados cardíacos | `frontend/` · `mobile/` · `IoT/` | ✅ local |
-
-> **Legenda:** ✅ pronto no repositório · ⬜ depende de uma ação de publicação (não exige
-> código).
+| # | Requisito | Estado |
+|---|---|---|
+| 1 | Web publicada na Vercel, com CI/CD | Completo|
+| 2 | `vercel.json` com rotas SPA | Completo |
+| 3 | `app.json` com `android.package` em domínio invertido | Completo |
+| 4 | `eas.json` com perfil `preview` | Completo |
+| 5 | `.apk` funcional | Completo |
+| 6 | Repositório privado compartilhado com o tutor | Completo |
+| 7 | Pasta `Backend/` com os scripts Python de integração | Completo |
+| 8 | Pasta `IoT/` com o script `.py` MicroPython | Completo |
+| 9 | Projeto Wokwi público em MicroPython com LED/OLED | Completo |
+| 10 | `README.md` com URL, QR do APK, prints e instruções | Completo |
+| 11 | Relatório técnico PDF (≤ 5 páginas) com o diagrama | Completo |
+| 12 | Refino de UX dos indicadores de risco | Completo |
+| 13 | Validação do login e dos dados cardíacos | Completo |
 
 ---
 
@@ -188,11 +225,6 @@ Fase_7/
 | Bundle do app | `cd mobile && npx expo export --platform web` | 219 módulos, 413 KB |
 | Sintaxe do firmware | `python -c "import ast; ast.parse(open('IoT/main.py').read())"` | OK |
 
-O **smoke test** exercita a mesma camada de API que a interface usa, contra o backend real —
-não é um mock. Ele cobre health, JWT, credencial inválida, pacientes, RBAC por papel,
-avaliação de risco (pipeline real da Fase 6), histórico, telemetria, assistente, visão e
-logout.
-
 ---
 
 ## 8. Documentação
@@ -201,13 +233,5 @@ logout.
 |---|---|
 | [`DEPLOY.md`](DEPLOY.md) | publicação no Render, Vercel e EAS + checklist |
 | [`docs/RELATORIO_FASE7.html`](docs/RELATORIO_FASE7.html) | relatório técnico (imprimir em PDF) |
-| [`CONTRATOS_API.md`](CONTRATOS_API.md) | envelope, códigos de erro e rotas do MVP |
-| [`MODELO_DADOS.md`](MODELO_DADOS.md) | tabelas, tipos e decisões de persistência |
-| [`DECISOES_ARQUITETURAIS.md`](DECISOES_ARQUITETURAIS.md) | as 6 decisões da Etapa B |
-| [`PLANO_SEGURANCA.md`](PLANO_SEGURANCA.md) | achados, correções e estado das credenciais |
-| [`PROGRESSO_FASE7.md`](PROGRESSO_FASE7.md) | registro de progresso por etapa |
-| [`backend/README.md`](backend/README.md) | o backend em detalhe |
-| [`frontend/README.md`](frontend/README.md) | a aplicação web em detalhe |
-| [`mobile/README.md`](mobile/README.md) | o aplicativo em detalhe |
 | [`IoT/README.md`](IoT/README.md) | o firmware e o circuito em detalhe |
 
