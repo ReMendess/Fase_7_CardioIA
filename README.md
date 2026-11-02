@@ -53,8 +53,12 @@ desenvolvidos nas fases anteriores sob uma única interface e solução.
 ## 1. Solução
 
 A solução funciona com um backend rodando hospedado no Render e o Frontend na Vercel.
-Utilizando tudo desenvolvido das outras fases o CardioAI tem de inicio uma tela de login, com autenticação
+Utilizando tudo desenvolvido das outras fases o CardioAI tem de inicio o Wokwi, com os sensores DHT22 + Botão e OLED
 
+
+<img src="/assets/wokwi.png" widht="80%">
+
+A interface principal, tem uma camada de segurança com uma página de login/autenticação
 
 <img src="/assets/login.png" widht="80%">
 
