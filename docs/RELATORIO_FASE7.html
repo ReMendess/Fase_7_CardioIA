@@ -171,7 +171,7 @@
     </svg>
 
     <footer>
-      CardioIA — Fase 7 · Relatório técnico · página 1 de 3 · dados sintéticos, sem validação clínica
+      CardioIA — Fase 7 · Relatório técnico · dados sintéticos, sem validação clínica
     </footer>
 
     <div class="quebra"></div>
@@ -286,7 +286,7 @@
     </ol>
 
     <footer>
-      CardioIA — Fase 7 · Relatório técnico · página 2 de 3 · dados sintéticos, sem validação clínica
+      CardioIA — Fase 7 · Relatório técnico · dados sintéticos, sem validação clínica
     </footer>
 
     <div class="quebra"></div>
@@ -330,7 +330,67 @@
       <code>ERRO_DE_SERVICO_DE_VISAO</code>.
     </p>
 
-    <h2>5. Validação executada</h2>
+    <h2>5. Decisões de interface e integridade do dado</h2>
+
+    <p>
+      Duas regras governam as três interfaces. Elas não são preferência estética: derivam do
+      contrato e do risco de um número ser lido como algo que ele não é.
+    </p>
+
+    <h3>5.1 O dado primeiro, a ressalva a um clique</h3>
+
+    <p>
+      Avisos, limitações declaradas, narrativa do pipeline, justificativas e trilha de
+      execução ficam <strong>recolhidos</strong> — presentes, a um clique, mas fora do
+      caminho de leitura. O que permanece visível é o que muda uma decisão.
+    </p>
+
+    <table>
+      <tr><th style="width: 44%">Elemento</th><th>Por que aparece assim</th></tr>
+      <tr>
+        <td>Avisos e limitações declaradas</td>
+        <td>O contrato exige que <strong>existam</strong> na resposta; não que ocupem a tela</td>
+      </tr>
+      <tr>
+        <td>Narrativa, justificativas e trilha de execução</td>
+        <td>Texto de auditoria, não de leitura clínica</td>
+      </tr>
+      <tr>
+        <td>Protocolos aplicáveis e indicadores deterministas</td>
+        <td><strong>Visíveis</strong>: são o conteúdo acionável da resposta</td>
+      </tr>
+    </table>
+
+    <h3>5.2 Nenhum dado sintético se passa por medição</h3>
+
+    <ul>
+      <li>
+        <strong>Ausência não é zero.</strong> Campo não informado aparece como
+        <code>--</code>; o backend nunca preenche valor padrão em nome do usuário.
+      </li>
+      <li>
+        <strong>A origem do dado é rotulada.</strong> Uma leitura chega como
+        <code>rest</code>, <code>mqtt</code> ou <code>simulado</code> — e a interface exibe
+        esse rótulo. Uma leitura semeada para demonstração não pode ser lida como medição de
+        dispositivo real.
+      </li>
+      <li>
+        <strong>O que o modelo não devolve não é exibido.</strong> A API entrega os
+        <em>nomes</em> das features usadas, não os valores; as barras só aparecem para quem
+        acabou de informar os valores. Preencher o resto seria apresentar dado que o backend
+        não devolveu.
+      </li>
+    </ul>
+
+    <p>
+      A mesma regra vale para os alertas: o alerta das regras de telemetria é
+      <strong>derivado</strong> e não tem coluna no banco. Ele aparece na resposta da
+      ingestão; no histórico, a interface mostra os sinais brutos e declara a diferença, em
+      vez de recalcular o limiar no cliente — o que criaria uma segunda fonte de verdade
+      clínica.
+    </p>
+
+    <h2>6. Validação executada</h2>
 
     <table>
       <tr>
@@ -340,13 +400,13 @@
       </tr>
       <tr>
         <td>Suíte automatizada do backend</td>
-        <td><strong>636 testes aprovados</strong></td>
+        <td><strong>659 testes aprovados</strong></td>
         <td>Contratos, persistência, autenticação, integração com as fases 3 a 6, CORS</td>
       </tr>
       <tr>
         <td>Integração ponta a ponta (smoke)</td>
-        <td><strong>65 verificações, 0 falhas</strong></td>
-        <td>Fluxo real nos três papéis, contra o backend em execução</td>
+        <td><strong>75 verificações, 0 falhas</strong></td>
+        <td>Fluxo real nos três papéis, contra o backend em execução — 33 médico, 23 operador e 19 admin</td>
       </tr>
       <tr>
         <td>Pipeline da Fase 6 pelo cliente</td>
@@ -364,8 +424,8 @@
         <td>A interface informa a causa em vez de falhar em silêncio</td>
       </tr>
       <tr>
-        <td>Empacotamento do aplicativo</td>
-        <td>219 módulos, 413 KB</td>
+        <td>Empacotamento da interface web</td>
+        <td>46 módulos, 285 KB (87 KB comprimido)</td>
         <td>Todas as telas e imports resolvem</td>
       </tr>
       <tr>
@@ -375,7 +435,7 @@
       </tr>
     </table>
 
-    <h2>6. Limitações declaradas</h2>
+    <h2>7. Limitações declaradas</h2>
 
     <ul>
       <li>
@@ -407,7 +467,7 @@
       </li>
     </ul>
 
-    <h2>7. Conclusão</h2>
+    <h2>8. Conclusão</h2>
 
     <p>
       A plataforma integra os módulos das fases anteriores em um ecossistema funcional, no
@@ -420,7 +480,7 @@
     </p>
 
     <footer>
-      CardioIA — Fase 7 · Relatório técnico · página 3 de 3 · dados sintéticos, sem validação clínica
+      CardioIA — Fase 7 · Relatório técnico · dados sintéticos, sem validação clínica
     </footer>
   </body>
 </html>

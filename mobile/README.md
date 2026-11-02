@@ -75,18 +75,43 @@ EXPO_PUBLIC_API_URL=https://cardioia-backend.onrender.com/api/v1
 > ID* em minúsculas — o Google Play rejeita maiúsculas, e o `expo prebuild` gera caminhos
 > de pasta a partir dele, o que quebra em sistemas de arquivos sensíveis a maiúsculas.
 
-### 4.2 Comandos
+### 4.2 O endereço do backend já está fixado
+
+O perfil `preview` define `EXPO_PUBLIC_API_URL` no **próprio `eas.json`**:
+
+```json
+"env": { "EXPO_PUBLIC_API_URL": "https://cardioia-backend-z8pz.onrender.com/api/v1" }
+```
+
+Isso é proposital. Sem essa variável, o app cairia no padrão `http://10.0.2.2:8000` — que é o
+alias do **emulador** para a máquina host. Num celular real esse endereço não existe, e o
+APK instalaria, abriria e falharia no login **sem dizer por quê**. Fixar no `eas.json` torna
+o build determinístico: o APK sai com o endereço certo mesmo que ninguém crie um `.env`.
+
+> ⚠️ Se o serviço do Render for recriado com outro nome, atualize a URL aqui **e** o
+> `VITE_API_URL` da Vercel. São dois clientes, um backend só.
+
+> ℹ️ **O APK não depende de CORS.** CORS é um mecanismo do navegador: um app nativo não envia
+> `Origin` nem é bloqueado por ele. A Vercel precisa do domínio em `CORS_ORIGENS`; o APK não.
+
+### 4.3 Comandos
 
 ```powershell
 cd mobile
 npm install
-npx eas-cli login          # conta Expo gratuita
+npx eas-cli login          # conta Expo gratuita — passo INTERATIVO
 npx eas-cli build --platform android --profile preview
 ```
 
-Ao final o EAS devolve um **link** e um **QR Code** para baixar o `.apk`.
+Na primeira execução o EAS pergunta se pode **criar o projeto** (o `extra.eas.projectId`
+ainda não existe no `app.json`) — responda que sim. Ao final ele devolve um **link** e um
+**QR Code** para baixar o `.apk`.
 
-### 4.3 Instalar no aparelho
+> ℹ️ **Por que na nuvem e não local:** o build local exige **JDK 17** e o Android SDK com
+> `ANDROID_HOME`. O EAS compila nos servidores da Expo e devolve o artefato — não é preciso
+> toolchain de Android na máquina.
+
+### 4.4 Instalar no aparelho
 
 1. Abra o link (ou leia o QR Code) no celular Android.
 2. Autorize a instalação de fontes desconhecidas quando o sistema pedir.

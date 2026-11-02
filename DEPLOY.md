@@ -133,8 +133,12 @@ EAS devolve um link e um QR Code para download.
 | Arquivo | O que configura |
 |---|---|
 | `mobile/app.json` | `android.package` = `br.com.fiap.cardioiarenan` |
-| `mobile/eas.json` | perfil `preview` com `buildType: apk` |
-| `mobile/.env.example` | `EXPO_PUBLIC_API_URL` → URL do Render |
+| `mobile/eas.json` | perfil `preview` com `buildType: apk` e `EXPO_PUBLIC_API_URL` **já fixado** |
+| `mobile/.env.example` | só para desenvolvimento local — o build **não** depende dele |
+
+> ⚠️ **A URL do backend fica no `eas.json`, não num `.env`.** Sem ela o app cairia em
+> `http://10.0.2.2:8000` (o alias do emulador) e o APK falharia no login num aparelho real,
+> sem mensagem. Ver `mobile/README.md` §4.2.
 
 ---
 

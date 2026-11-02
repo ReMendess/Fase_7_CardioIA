@@ -270,8 +270,8 @@ avaliação (pipeline real da Fase 6), histórico, telemetria, assistente, visã
 
 | Papel | Verificações |
 |---|---|
-| `MEDICO` | **29/29** |
-| `OPERADOR` | **17/17** |
+| `MEDICO` | **33/33** |
+| `OPERADOR` | **23/23** |
 | `ADMIN` | **19/19** |
 
 > As contagens diferem porque o script só executa o que o papel **pode** fazer e verifica
