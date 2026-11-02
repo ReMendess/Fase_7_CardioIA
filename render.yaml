@@ -54,6 +54,17 @@ services:
       - key: USUARIO_INICIAL_PAPEL
         value: MEDICO
 
+      # Semear leituras de telemetria simuladas quando a tabela estiver vazia.
+      #
+      # A hospedagem gratuita nao tem dispositivo publicando, e o SQLite volta vazio a
+      # cada reinicio: sem isso, a aba Monitoramento e o painel de indicadores do
+      # dashboard ficam vazios na aplicacao publicada, mesmo com o backend no ar.
+      #
+      # As leituras entram com origem_transporte="simulado" — valor do contrato, que a
+      # interface rotula como "Simulado". Nenhuma se passa por medicao real.
+      - key: SEMEAR_TELEMETRIA_SIMULADA
+        value: "true"
+
       # O aquecimento roda em SEGUNDO PLANO: o /health responde de imediato (o health check
       # do Render decide se o deploy sobe) e o modelo fica pronto logo depois. Com o plano
       # free (512 MB), desligar o aquecimento troca memoria por latencia na 1a avaliacao.

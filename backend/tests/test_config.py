@@ -13,11 +13,21 @@ from app.config import (
     ErroDeConfiguracao,
 )
 from app.main import criar_app
-from tests.conftest import SEGREDO_DE_TESTE
+from tests.conftest import CREDENCIAIS_NEUTRAS, SEGREDO_DE_TESTE
 
 
 def _config(**extras: object) -> Configuracoes:
-    parametros: dict[str, object] = {"_env_file": None, "ambiente": "teste"}
+    """Configuracao minima para exercitar a validacao de ``Configuracoes``.
+
+    Usa as mesmas credenciais neutras do ``conftest``: sem isso, um `OPENAI_API_KEY` ou
+    `WATSON_*` definido na maquina do desenvolvedor faria as integracoes aparecerem como
+    configuradas e quebraria os testes de "apenas presenca".
+    """
+    parametros: dict[str, object] = {
+        "_env_file": None,
+        "ambiente": "teste",
+        **CREDENCIAIS_NEUTRAS,
+    }
     parametros.update(extras)
     return Configuracoes(**parametros)  # type: ignore[arg-type]
 

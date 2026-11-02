@@ -78,6 +78,30 @@ FEATURES_DO_PACIENTE_DA_AULA: dict[str, float] = {
 
 
 
+#: Credenciais de integracao fixadas no PADRAO (vazio) pelos testes.
+#:
+#: O ambiente do desenvolvedor costuma te-las definidas — a documentacao manda definir
+#: `IOT_DEVICE_KEY`, e o Watson e opcional. Sem fixa-las, elas vazam para dentro dos
+#: testes e mudam o comportamento observado: `test_chave_sem_configuracao_no_servidor_devolve_401`
+#: passava a ver "chave invalida" em vez de "servidor sem chave configurada", e tres
+#: testes do provedor local do assistente falhavam.
+#:
+#: `_env_file=None` desliga apenas o arquivo `.env`; **variaveis de ambiente continuam
+#: valendo** no pydantic-settings. Fixar aqui e o que torna a suite independente da
+#: maquina — inclusive `test_config.py`, que monta a configuracao pelo proprio helper.
+#:
+#: Os testes que precisam de um provedor passam o valor por `extras`, que sobrescreve.
+CREDENCIAIS_NEUTRAS: dict[str, object] = {
+    "iot_device_key": "",
+    "watson_api_key": "",
+    "watson_service_url": "",
+    "watson_assistant_id": "",
+    "watson_environment_id": "",
+    "openai_api_key": "",
+    "servico_visao_token": "",
+}
+
+
 def _configuracao_base(pasta_fase_6: str, **extras: object) -> Configuracoes:
     """Configuracao de teste isolada do ambiente do desenvolvedor."""
     parametros: dict[str, object] = {
@@ -93,6 +117,11 @@ def _configuracao_base(pasta_fase_6: str, **extras: object) -> Configuracoes:
         # Nenhum teste deve receber a conta de demonstracao: os ambientes de teste
         # criam os proprios usuarios e varios deles contam registros.
         "semear_usuario_inicial": False,
+        # Pela mesma razao: os ambientes de teste criam as proprias leituras de
+        # telemetria e varios deles contam registros (ou afirmam que a lista esta vazia).
+        "semear_telemetria_simulada": False,
+        # Credenciais de integracao fixadas no padrao — ver `CREDENCIAIS_NEUTRAS`.
+        **CREDENCIAIS_NEUTRAS,
     }
     parametros.update(extras)
     return Configuracoes(**parametros)  # type: ignore[arg-type]

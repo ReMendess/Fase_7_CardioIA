@@ -150,6 +150,8 @@ EAS devolve um link e um QR Code para download.
 | 6 | Push na `main` dispara novo deploy | Vercel |
 | 7 | APK instala e faz login | Android |
 | 8 | Leitura do Wokwi aparece no monitoramento | Wokwi → Render |
+| 9 | Monitoramento já tem leituras, **sem** nenhum dispositivo ligado | Vercel |
+| 10 | As leituras da tela aparecem marcadas como **"Simulado"** | Vercel |
 
 ---
 
@@ -161,5 +163,6 @@ EAS devolve um link e um QR Code para download.
 | `404` ao dar F5 numa rota interna | `vercel.json` ausente ou sem os `rewrites` |
 | `503 MODELO_INDISPONIVEL` na avaliação | deploy feito a partir de `backend/` em vez da raiz |
 | Primeira chamada demora ~50 s | hibernação do plano gratuito do Render |
-| Login falha após um tempo sem uso | o Render reiniciou e o banco foi recriado — a conta de demonstração é semeada de novo automaticamente |
+| Login falha após um tempo sem uso | o Render reiniciou e o banco foi recriado — a conta de demonstração e a telemetria simulada são semeadas de novo automaticamente |
+| Monitoramento vazio com o backend no ar | `SEMEAR_TELEMETRIA_SIMULADA=false`, ou já existia leitura real no banco (a semeadura é idempotente e não se mistura com dado de dispositivo) |
 | Chat responde `502` | há `WATSON_*` preenchidas apontando para um serviço indisponível — remova-as para usar o provedor local |

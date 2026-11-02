@@ -334,6 +334,55 @@ Garantias:
 
 ---
 
+### Telemetria simulada (semeada no startup)
+
+Pela **mesma razão** da conta de demonstração — e agravada por um fator: além do sistema de
+arquivos efêmero, **não há dispositivo publicando na nuvem**. Sem leituras, a aba
+Monitoramento e o painel de indicadores do dashboard ficariam vazios na aplicação
+publicada, mesmo com o backend no ar.
+
+| Variável | Padrão | Para que |
+|---|---|---|
+| `SEMEAR_TELEMETRIA_SIMULADA` | `true` | liga/desliga a semeadura |
+
+A série semeada tem **7 leituras** e **2 dispositivos** — sem o segundo, o filtro por
+`id_dispositivo` da tela não teria o que filtrar. Os instantes são relativos ao boot
+(`minutos_atras`), para a lista mostrar uma série temporal em vez de sete linhas no mesmo
+segundo:
+
+| Dispositivo | Quando | Temp. | BPM | Leitura |
+|---|---|---|---|---|
+| `esp32-enfermaria-02` | 4 min atrás | 37,2 °C | 92 | estável |
+| `esp32-wokwi-01` | 6 min atrás | **38,9 °C** | 121 | **febre** |
+| `esp32-enfermaria-02` | 10 min atrás | 36,8 °C | 81 | estável |
+| `esp32-wokwi-01` | 13 min atrás | 37,8 °C | 96 | estável |
+| `esp32-wokwi-01` | 20 min atrás | 37,1 °C | 88 | estável |
+| `esp32-wokwi-01` | 27 min atrás | 36,6 °C | 78 | estável |
+| `esp32-wokwi-01` | 34 min atrás | 36,4 °C | 74 | estável |
+
+Garantias:
+
+- **idempotente** — se já houver **qualquer** leitura, não faz nada. Isso impede misturar
+  dado semeado com o de um dispositivo de verdade e não reescreve um histórico existente;
+- **rotulada** — todas entram com `origem_transporte = "simulado"`, valor do contrato
+  (`OrigemDoTransporte.SIMULADO`) que a interface exibe como **"Simulado"**. Nenhuma
+  leitura semeada se passa por medição de dispositivo real;
+- **não derruba o boot** — falha na semeadura vira log e o servidor sobe normalmente;
+- **desligável** — `SEMEAR_TELEMETRIA_SIMULADA=false` (é o que a suíte de testes usa, pela
+  mesma razão de `SEMEAR_USUARIO_INICIAL`).
+
+> ⚠️ **O alerta não reaparece no histórico.** A série inclui uma leitura febril de
+> propósito, mas o alerta das regras da Fase 3 é **derivado** e não tem coluna: ele existe
+> na resposta da **ingestão**, não no `GET`. O histórico mostra os sinais brutos — é o
+> contrato, não um defeito da semeadura. O `payload_json` guarda o alerta que a regra teria
+> dado, para a procedência ficar auditável no banco.
+
+> ℹ️ O identificador principal (`esp32-wokwi-01`) é o **mesmo do firmware** em
+> `IoT/main.py`, para que a leitura simulada e a real sejam comparáveis quando o Wokwi
+> estiver apontando para este backend.
+
+---
+
 ## Integração com a Fase 6 (item 4)
 
 **Decisão aprovada (alternativa A):** **import direto** do pacote `cardioia` dentro do

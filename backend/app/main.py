@@ -20,6 +20,7 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import timedelta
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -38,7 +39,7 @@ from .contratos.erros import (
     ErroDaAPIException,
     codigo_do_http,
 )
-from .dados.base import criar_engine, criar_fabrica_de_sessoes
+from .dados.base import agora_utc, criar_engine, criar_fabrica_de_sessoes
 from .dados.esquema import EsquemaIncompativelError, preparar_banco
 from .integracao.modelo import CacheDoModelo
 from .rotas import assistente, auth, avaliacoes, imagens, iot, pacientes, saude
@@ -52,6 +53,41 @@ DESCRICAO = (
     "sob um contrato unico.\n\n"
     "**Aviso:** os dados do projeto sao SINTETICOS e nao ha validacao clinica. "
     "Nenhum resultado constitui diagnostico, prescricao ou recomendacao medica."
+)
+
+
+#: Leituras de telemetria semeadas no startup, quando a tabela esta vazia.
+#:
+#: Por que valores **fixos**, e nao aleatorios: um conjunto aleatorio mudaria a cada
+#: reinicio e nao haveria como testar nem comparar duas execucoes. O que varia e o
+#: **instante** — ``minutos_atras`` e sempre relativo ao boot; sem isso todas as leituras
+#: cairiam no mesmo segundo e a lista nao mostraria uma serie temporal.
+#:
+#: Dois dispositivos de proposito: o filtro por ``id_dispositivo`` da aba Monitoramento
+#: so e demonstravel com mais de um. O identificador principal e o **mesmo do firmware**
+#: (``IoT/main.py``), para que a leitura simulada e a real sejam comparaveis.
+#:
+#: A serie de ``esp32-wokwi-01`` sobe de 36,4 ate 38,9 no ultimo valor, que aciona
+#: ``FEBRE DETECTADA`` em :func:`app.regras_iot.avaliar_sinais`. O alerta **nao e
+#: persistido** — nao ha coluna para ele —, entao ele nao reaparece no historico: o que a
+#: tela mostra sao os sinais brutos. Isso e do contrato, nao um defeito da semeadura.
+LEITURAS_SIMULADAS: tuple[dict[str, Any], ...] = (
+    # esp32-wokwi-01 — episodio febril em evolucao (34 min atras ate 6 min atras).
+    {"id_dispositivo": "esp32-wokwi-01", "minutos_atras": 34, "temperatura": 36.4,
+     "bpm": 74, "umidade": 58.0, "luminosidade": 320.0, "movimento": True},
+    {"id_dispositivo": "esp32-wokwi-01", "minutos_atras": 27, "temperatura": 36.6,
+     "bpm": 78, "umidade": 57.5, "luminosidade": 305.0, "movimento": True},
+    {"id_dispositivo": "esp32-wokwi-01", "minutos_atras": 20, "temperatura": 37.1,
+     "bpm": 88, "umidade": 56.9, "luminosidade": 290.0, "movimento": True},
+    {"id_dispositivo": "esp32-wokwi-01", "minutos_atras": 13, "temperatura": 37.8,
+     "bpm": 96, "umidade": 55.2, "luminosidade": 275.0, "movimento": True},
+    {"id_dispositivo": "esp32-wokwi-01", "minutos_atras": 6, "temperatura": 38.9,
+     "bpm": 121, "umidade": 54.1, "luminosidade": 260.0, "movimento": True},
+    # esp32-enfermaria-02 — permanece estavel, para o filtro ter contraste.
+    {"id_dispositivo": "esp32-enfermaria-02", "minutos_atras": 10, "temperatura": 36.8,
+     "bpm": 81, "umidade": 61.2, "luminosidade": 410.0, "movimento": True},
+    {"id_dispositivo": "esp32-enfermaria-02", "minutos_atras": 4, "temperatura": 37.2,
+     "bpm": 92, "umidade": 60.4, "luminosidade": 395.0, "movimento": True},
 )
 
 
@@ -228,6 +264,75 @@ def _semear_conta_de_demonstracao(app: FastAPI, config: Configuracoes) -> None:
     )
 
 
+def _semear_telemetria_simulada(app: FastAPI, config: Configuracoes) -> None:
+    """Grava leituras de telemetria simuladas quando a tabela esta vazia.
+
+    Por que existe: a mesma razao da conta de demonstracao — o SQLite da hospedagem
+    gratuita volta vazio a cada reinicio —, **agravada** por um fator: nao ha dispositivo
+    publicando na nuvem. Sem isso, a aba Monitoramento e o painel de indicadores do
+    dashboard ficariam vazios na aplicacao publicada, mesmo com o backend no ar.
+
+    As leituras entram com ``origem_transporte = SIMULADO``, que e um valor do contrato
+    e a interface rotula como "Simulado" — nada aqui e apresentado como medicao de
+    dispositivo real. O ``payload_json`` registra o alerta que a regra da Fase 3 teria
+    dado, para a procedencia ficar auditavel no banco.
+
+    E **idempotente**: se ja houver qualquer leitura, nao faz nada. Assim nao mistura
+    dados semeados com os de um dispositivo de verdade, nem reescreve um historico
+    existente.
+    """
+    if not config.semear_telemetria_simulada:
+        return
+
+    fabrica = getattr(app.state, "fabrica_de_sessoes", None)
+    if fabrica is None:
+        return
+
+    # Import tardio: mantem o import de `app.main` barato.
+    from .dados.enums import OrigemDoTransporte
+    from .dados.repositorios.telemetria import MonitoramentoRepositorio
+    from .regras_iot import avaliar_sinais
+
+    agora = agora_utc()
+
+    try:
+        with fabrica() as sessao:
+            repositorio = MonitoramentoRepositorio(sessao)
+            if repositorio.ultimas(limite=1):
+                return
+
+            for leitura in LEITURAS_SIMULADAS:
+                avaliacao = avaliar_sinais(
+                    temperatura=leitura["temperatura"],
+                    bpm=leitura["bpm"],
+                    movimento=leitura.get("movimento"),
+                )
+                repositorio.registrar(
+                    id_dispositivo=leitura["id_dispositivo"],
+                    origem_transporte=OrigemDoTransporte.SIMULADO,
+                    temperatura=leitura["temperatura"],
+                    bpm=leitura["bpm"],
+                    umidade=leitura.get("umidade"),
+                    luminosidade=leitura.get("luminosidade"),
+                    movimento=leitura.get("movimento"),
+                    recebido_em=agora - timedelta(minutes=leitura["minutos_atras"]),
+                    payload={
+                        "origem": "semeadura-de-demonstracao",
+                        "alerta_local": avaliacao.alerta,
+                    },
+                )
+    except ErroDaAPIException as erro:
+        # Nao derruba o boot: sem telemetria a aplicacao continua utilizavel.
+        registrador.warning("telemetria simulada nao semeada: %s", erro.mensagem)
+        return
+
+    registrador.info(
+        "telemetria simulada semeada | leituras=%d | dispositivos=%s",
+        len(LEITURAS_SIMULADAS),
+        ", ".join(sorted({leitura["id_dispositivo"] for leitura in LEITURAS_SIMULADAS})),
+    )
+
+
 @asynccontextmanager
 async def _ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
     """Prepara o banco na inicializacao e libera o engine no encerramento.
@@ -254,6 +359,7 @@ async def _ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
             "banco preparado | versao_do_esquema=%s | url=%s", versao, config.url_do_banco
         )
         _semear_conta_de_demonstracao(app, config)
+        _semear_telemetria_simulada(app, config)
 
     # Cache do modelo (M3). Best-effort de proposito: se o artefato ou o SDK falharem, o
     # servidor **sobe** (M1) e a requisicao que precisar do modelo reporta o erro.

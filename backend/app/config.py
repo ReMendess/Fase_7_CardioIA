@@ -133,6 +133,21 @@ class Configuracoes(BaseSettings):
     )
 
     # ------------------------------------------------------------------ #
+    # Telemetria simulada (semeada no startup)
+    # ------------------------------------------------------------------ #
+    # Mesma motivacao da conta de demonstracao, agravada por um fator: alem de o sistema
+    # de arquivos ser efemero, **nao ha dispositivo publicando na nuvem**. Sem isso, a
+    # aba Monitoramento e o painel de indicadores do dashboard ficariam vazios na
+    # aplicacao publicada, mesmo com o backend no ar.
+    #
+    # As leituras entram com ``origem_transporte = "simulado"`` — valor que **ja existe**
+    # no contrato (``OrigemDoTransporte.SIMULADO``) e que a interface rotula como
+    # "Simulado". Nenhuma leitura simulada e apresentada como medicao de dispositivo real.
+    #
+    # Idempotente como a conta: so semeia quando a tabela de telemetria esta vazia.
+    semear_telemetria_simulada: bool = Field(default=True)
+
+    # ------------------------------------------------------------------ #
     # Integracoes (caminhos e URLs — nao sao segredos)
     # ------------------------------------------------------------------ #
     pasta_fase_6: str = Field(default="", description="Vazio = descoberta automatica.")
