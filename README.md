@@ -24,7 +24,7 @@ desenvolvidos nas fases anteriores sob uma única interface e solução.
 ## Vídeo
 
 - **Fase 7:** https://youtu.be/v-__IQXEDMA
-- **App:** 
+- **App:** https://youtube.com/shorts/377Y6ZdUvRQ
 ---
 
 ## Links da entrega
@@ -203,14 +203,13 @@ Fase_7/
 | 3 | `app.json` com `android.package` em domínio invertido | Completo |
 | 4 | `eas.json` com perfil `preview` | Completo |
 | 5 | `.apk` funcional | Completo |
-| 6 | Repositório privado compartilhado com o tutor | Completo |
-| 7 | Pasta `Backend/` com os scripts Python de integração | Completo |
-| 8 | Pasta `IoT/` com o script `.py` MicroPython | Completo |
-| 9 | Projeto Wokwi público em MicroPython com LED/OLED | Completo |
-| 10 | `README.md` com URL, QR do APK, prints e instruções | Completo |
-| 11 | Relatório técnico PDF (≤ 5 páginas) com o diagrama | Completo |
-| 12 | Refino de UX dos indicadores de risco | Completo |
-| 13 | Validação do login e dos dados cardíacos | Completo |
+| 6 | Pasta `Backend/` com os scripts Python de integração | Completo |
+| 7 | Pasta `IoT/` com o script `.py` MicroPython | Completo |
+| 8 | Projeto Wokwi público em MicroPython com LED/OLED | Completo |
+| 9 | `README.md` com URL, QR do APK, prints e instruções | Completo |
+| 10 | Relatório técnico PDF com o diagrama | Completo |
+| 11 | Refino de UX dos indicadores de risco | Completo |
+| 12 | Validação do login e dos dados cardíacos | Completo |
 
 ---
 
