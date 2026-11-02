@@ -23,7 +23,7 @@ desenvolvidos nas fases anteriores sob uma única interface e solução.
 
 ## Vídeo
 
-- **Fase 7:** https://youtu.be/v-__IQXEDMA
+- **Fase 7:** https://youtu.be/swJ2R_B9LIc
 - **App:** https://youtube.com/shorts/377Y6ZdUvRQ
 ---
 
@@ -34,7 +34,7 @@ desenvolvidos nas fases anteriores sob uma única interface e solução.
 | **Aplicação Web (Vercel)** | https://fase-7-cardio-ia.vercel.app |
 | **Backend (Render)** | https://cardioia-backend-z8pz.onrender.com |
 | **APK (Expo / EAS)** | https://expo.dev/accounts/remendess/projects/cardioia/builds/b3492405-08d4-4a15-a4dd-a29b9f5010ec|
-| **Relatório técnico (HTML e PDF)** | docs/RELATORIO_FASE7.html |
+| **Relatório técnico (PDF)** | pasta docs |
 
 
 ## QR Code para Download do App - Android
