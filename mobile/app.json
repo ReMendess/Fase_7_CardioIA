@@ -18,7 +18,9 @@
     "android": {
       "package": "br.com.fiap.cardioiarenan",
       "versionCode": 1,
-      "permissions": ["INTERNET"],
+      "permissions": [
+        "INTERNET"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,7 +30,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7921aa2c-0121-4cdb-b4fe-54bde30da209"
+      }
     }
   }
 }
-

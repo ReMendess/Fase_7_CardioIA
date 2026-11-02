@@ -122,13 +122,15 @@ export default function IndicadoresScreen() {
       refreshControl={<RefreshControl refreshing={false} onRefresh={carregar} />}
     >
       <View style={styles.cabecalho}>
-        <View>
+        {/* `flex: 1` no bloco de texto: sem ele, um nome longo empurra o botao Sair
+            para fora da tela em vez de quebrar a linha. */}
+        <View style={styles.cabecalhoTexto}>
           <Text style={styles.titulo}>Indicadores cardiacos</Text>
           <Text style={styles.subtitulo}>
             {usuario?.nome} · {usuario?.papel}
           </Text>
         </View>
-        <Pressable onPress={logout} accessibilityRole="button">
+        <Pressable onPress={logout} accessibilityRole="button" accessibilityLabel="Sair">
           <Text style={styles.sair}>Sair</Text>
         </Pressable>
       </View>
@@ -261,9 +263,18 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
   },
+  cabecalhoTexto: { flex: 1, marginRight: spacing.md },
   titulo: { fontSize: fonts.header, fontWeight: "700", color: colors.text },
   subtitulo: { fontSize: fonts.small, color: colors.textMuted },
-  sair: { color: colors.primary, fontWeight: "700", fontSize: fonts.small },
+  // `padding` aqui e area de toque, nao decoracao: o Android recomenda 48dp de alvo, e
+  // um texto de 13pt sozinho fica bem abaixo disso.
+  sair: {
+    color: colors.primary,
+    fontWeight: "700",
+    fontSize: fonts.small,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
   cartao: {
     backgroundColor: colors.surface,
     borderRadius: radii.banner,

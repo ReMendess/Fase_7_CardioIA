@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
 import { AuthProvider, useAuth } from "./src/contexts/AuthContext";
@@ -14,6 +15,17 @@ import { colors, fonts, spacing } from "./src/theme";
  * Tres telas, cobrindo o fluxo exigido: **login** → **indicadores cardiacos** →
  * **assistente**. A navegacao e por estado local, sem biblioteca de rotas: sao poucas
  * telas e isso evita mais uma dependencia.
+ *
+ * ⚠️ **Por que `react-native-safe-area-context` e nao o `SafeAreaView` do `react-native`:**
+ * no Android, o do core **e literalmente um `View`** — a implementacao e
+ * `Platform.select({ ios: <nativo>, default: View })`. Ele nao aplica recuo nenhum.
+ *
+ * Isso passou a importar quando o edge-to-edge virou obrigatorio: o SDK 57 avisa que
+ * "Android 16 makes edge-to-edge mandatory" e nem aceita desligar. Com o app desenhando
+ * atras das barras do sistema, o cabecalho (com o botao **Sair**) caia sob a barra de
+ * status e a barra de abas caia sob a de navegacao — e **essas regioes pertencem ao
+ * sistema, que nao repassa toque ao app**. O sintoma era exatamente esse: nao dava para
+ * sair nem trocar de aba.
  */
 
 const ABAS = [
@@ -58,12 +70,15 @@ function Conteudo() {
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.segura}>
-      <StatusBar style="dark" />
-      <AuthProvider>
-        <Conteudo />
-      </AuthProvider>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      {/* `edges` explicito: sem ele o app volta a desenhar atras das barras do sistema. */}
+      <SafeAreaView style={styles.segura} edges={["top", "bottom", "left", "right"]}>
+        <StatusBar style="dark" />
+        <AuthProvider>
+          <Conteudo />
+        </AuthProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

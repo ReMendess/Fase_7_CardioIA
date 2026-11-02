@@ -30,8 +30,9 @@ isso evita mais uma dependência.
 | Expo SDK | 57 (`expo ~57.0.20`, React Native 0.86) |
 | Conta Expo | necessária **apenas** para o build na nuvem (EAS) |
 
-**Nenhuma dependência nova** em relação ao app da Fase 5: `expo`, `expo-constants`,
-`expo-status-bar`, `react`, `react-dom`, `react-native`, `react-native-web`.
+**Uma dependência nova** em relação ao app da Fase 5: `react-native-safe-area-context` — e
+o motivo está em §6. As demais são as mesmas: `expo`, `expo-constants`, `expo-status-bar`,
+`react`, `react-dom`, `react-native`, `react-native-web`.
 
 ---
 
@@ -172,6 +173,14 @@ mobile/
   `sem_pico_de_risco` / `pico_de_risco`; a tela só exibe.
 - **A telemetria não é vinculada a paciente** no contrato §4.2 — a tela marca os sinais
   vitais como sendo do **dispositivo**.
+- **O recuo das barras do sistema vem do `react-native-safe-area-context`.** No Android, o
+  `SafeAreaView` do `react-native` é **literalmente um `View`** — a implementação é
+  `Platform.select({ ios: <nativo>, default: View })`. Isso passou a importar quando o
+  edge-to-edge virou obrigatório: o SDK 57 avisa que *"Android 16 makes edge-to-edge
+  mandatory"* e **não aceita desligar**. Com o app desenhando atrás das barras, o cabeçalho
+  caía sob a barra de status e a barra de abas sob a de navegação — e **essas regiões
+  pertencem ao sistema, que não repassa toque ao app**. O sintoma era não conseguir sair nem
+  trocar de aba. É a única dependência acrescentada, e ela existe por isso.
 
 ---
 
@@ -184,3 +193,4 @@ mobile/
 | `403` ao cadastrar paciente | a conta entrou com papel `ADMIN` ou `OPERADOR` — use a conta `MEDICO` |
 | Build do EAS falha por `package` inválido | maiúscula no `android.package` (o Android exige minúsculas) |
 | Dados não carregam após o app ficar aberto muito tempo | a sessão expira em 30 min; o cliente renova sozinho uma vez — se falhar, faça login de novo |
+| Conteúdo atrás das barras do sistema, e **"Sair" e as abas não respondem ao toque** | o `SafeAreaView` foi trocado pelo do `react-native`, que no Android é um `View` puro — ver §6 |
