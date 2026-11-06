@@ -183,16 +183,13 @@ Instruções completas em [`IoT/README.md`](IoT/README.md).
 
 ```text
 Fase_7/
-├── backend/     FastAPI — o integrador em Python (636 testes)
+├── backend/     FastAPI — o integrador em Python
 ├── frontend/    React + Vite — aplicação web            → Vercel
 ├── mobile/      React Native + Expo — aplicativo        → APK (EAS)
-├── IoT/         MicroPython + circuito Wokwi            → link público
-├── docs/        Relatório técnico (imprimir em PDF)
-├── Fase_1…6/    módulos das fases anteriores (sanitizados)
+├── IoT/         MicroPython + circuito Wokwi
+├── docs/        Relatório técnico (PDF)
+├── Fase_1…6/    módulos das fases anteriores
 ├── render.yaml  blueprint do backend no Render
-├── DEPLOY.md    guia de publicação, passo a passo
-├── CONTRATOS_API.md · MODELO_DADOS.md · DECISOES_ARQUITETURAIS.md
-├── PLANO_SEGURANCA.md · ANALISE_ARQUITETURA.md · PROGRESSO_FASE7.md
 └── README.md
 ```
 
@@ -235,6 +232,6 @@ Fase_7/
 | Documento | Conteúdo |
 |---|---|
 | [`DEPLOY.md`](DEPLOY.md) | publicação no Render, Vercel e EAS + checklist |
-| [`docs/RELATORIO_FASE7.html`](docs/RELATORIO_FASE7.html) | relatório técnico (imprimir em PDF) |
+| [`docs/RELATORIO_FASE7.html`](docs/RELATORIO_FASE7.html) | relatório técnico (PDF) |
 | [`IoT/README.md`](IoT/README.md) | o firmware e o circuito em detalhe |
 
